@@ -1,6 +1,7 @@
 NAME = FABOLOUS
 
-SRCS = main.c
+SRCS = main.c \
+		launch_arrows.c \
 
 OBJS = $(SRCS:.c=.o)
 
