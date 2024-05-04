@@ -1,5 +1,6 @@
 #include "2048.h"
 #include <ncurses.h>
+#include "ft_printf/ft_printf.h"
 
 void	outputArray(int *arr, int size)
 {
@@ -15,7 +16,7 @@ void	zeroedColum(int *colum, int size)
 
 void	trimArrZeros(int *arr, int size)
 {
-	int	*temp = malloc(sizeof(int) * size);
+	int	*temp = malloc(sizeof(int) * (size_t)size);
 	int	in = 0;
 	
 	zeroedColum(temp, size);
@@ -49,7 +50,7 @@ void	doubleItUp(int *colum, t_board *board)
 
 void	launch_left(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * board->dim);
+	int	*colum = malloc(sizeof(int) * (size_t)board->dim);
 	int	in;
 
 	for(int x = 0; x < board->dim; x++)
@@ -74,7 +75,7 @@ void	launch_left(t_board* board)
 
 void	launch_right(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * board->dim);
+	int	*colum = malloc(sizeof(int) * (size_t)board->dim);
 	int	in;
 
 	for(int x = 0; x < board->dim; x++)
@@ -99,7 +100,7 @@ void	launch_right(t_board* board)
 
 void	launch_up(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * board->dim);
+	int	*colum = malloc(sizeof(int) * (size_t)board->dim);
 	int	in;
 
 	for(int y = 0; y < board->dim; y++)
@@ -124,7 +125,7 @@ void	launch_up(t_board* board)
 
 void	launch_down(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * board->dim);
+	int	*colum = malloc(sizeof(int) * (size_t)board->dim);
 	int	in;
 
 	for(int y = 0; y < board->dim; y++)
@@ -169,28 +170,33 @@ bool	gridCompare(int **cpy, int **arr, int size)
 	return (true);
 }
 
-void	launch_arrows(t_board *board, int key)
+bool	launch_arrows(t_board *board, int key)
 {
-	int	**cpy = malloc(sizeof(int *) * board->dim);
+	bool	ret;
+
+	int	**cpy = malloc(sizeof(int *) * (size_t)board->dim);
 	for(int i = 0; i < board->dim; i++)
 	{
-		cpy[i] = malloc(sizeof(int) * board->dim);
+		cpy[i] = malloc(sizeof(int) * (size_t)board->dim);
 		zeroedColum(cpy[i], board->dim);
 	}
 	copyGrid(cpy, board->cells, board->dim);
-	while(gridCompare(cpy, board->cells, board->dim) == true)
-	{
-		copyGrid(cpy, board->cells, board->dim);
-		if(key == KEY_UP)
-			launch_up(board);
-		else if(key == KEY_DOWN)
-			launch_down(board);
-		else if(key == KEY_RIGHT)
-			launch_right(board);
-		else if(key == KEY_LEFT)
-			launch_left(board);
-	}
+	if(key == KEY_UP)
+		launch_up(board);
+	else if(key == KEY_DOWN)
+		launch_down(board);
+	else if(key == KEY_RIGHT)
+		launch_right(board);
+	else if(key == KEY_LEFT)
+		launch_left(board);
+	else
+		ret = false;
+	if (gridCompare(cpy, board->cells, board->dim) == true)
+		ret = false;
+	else
+		ret = true;
 	freeGrid(cpy, board->dim);
+	return (ret);
 }
 
 void	resetGrid(t_board *board, int **temp)
@@ -201,10 +207,10 @@ void	resetGrid(t_board *board, int **temp)
 
 bool	noMovePossible(t_board *board)
 {
-	int	**temp = malloc(sizeof(int *) * board->dim);
+	int	**temp = malloc(sizeof(int *) * (size_t)board->dim);
 	for(int i = 0; i < board->dim; i++)
 	{
-		temp[i] = malloc(sizeof(int ) * board->dim);
+		temp[i] = malloc(sizeof(int) * (size_t)board->dim);
 		zeroedColum(temp[i], board->dim);
 	}
 	copyGrid(temp, board->cells, board->dim);

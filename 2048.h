@@ -4,22 +4,25 @@
 # include <stdbool.h>
 # include <stddef.h>
 
-typedef struct s_board
-{
-	int	dim;
-	int	**cells;
-	int	zero_amount;
-}	t_board;
-
 typedef struct s_pos
 {
 	int	x;
 	int	y;
 }	t_pos;
 
-void			launch_arrows(t_board *board, int key);
+typedef struct s_board
+{
+	int					dim;
+	int					**cells;
+	int					zero_amount;
+	unsigned long long	one_sec;
+	t_pos				new_cell;
+}	t_board;
+
+bool			launch_arrows(t_board *board, int key);
 bool			noMovePossible(t_board *board);
 void			freeGrid(int **arr, int size);
+void			destroy_board(t_board *board);
 
 unsigned int	ft_abs(int n);
 char			*ft_itoa(int n);

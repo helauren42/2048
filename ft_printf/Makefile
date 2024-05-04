@@ -26,10 +26,13 @@ RM	= rm -f
 
 CFLAGS	= -Wall -Wextra -Werror
 
-all:	$(NAME)
+all:	libft $(NAME)
 
 $(NAME):	$(OBJS)
-			ar rcs $(NAME) $(OBJS)
+			ar rcs $(NAME) $(OBJS) ../libft/libft.a
+
+libft:
+	$(MAKE) -C ../libft
 
 $(OBJS):	
 			${CC} ${CFLAGS} -c ${SRCS}
@@ -42,4 +45,4 @@ fclean:		clean
 
 re:			fclean all
 
-.PHONY:		all clean fclean re
+.PHONY:		all clean fclean re libft

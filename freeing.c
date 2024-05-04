@@ -1,4 +1,5 @@
 #include "2048.h"
+#include <stdlib.h>
 
 void	freeGrid(int **arr, int size)
 {

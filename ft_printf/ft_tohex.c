@@ -4,13 +4,15 @@
 /*   ft_tohex.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: helauren <helauren@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                               rint_pointer.c ft_tohex.c ft_print_char.c 
+ft_tohex.c:118:8: error: implicit declaration of function 'ft_strlen'                 +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/11 12:39:47 by helauren          #+#    #+#             */
 /*   Updated: 2023/07/11 12:39:47 by helauren         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+#include "../libft/libft.h"
 
 char	*str_rev(char *str, int len)
 {

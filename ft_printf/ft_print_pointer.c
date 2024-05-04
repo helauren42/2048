@@ -11,20 +11,7 @@
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-
-int	ft_strcmp(char *str, char *nil)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] && nil[i])
-	{
-		if (str[i] != nil[i])
-			return (1);
-		i++;
-	}
-	return (0);
-}
+#include "../libft/libft.h"
 
 int	ft_print_pointer(void *value, char *nil)
 {

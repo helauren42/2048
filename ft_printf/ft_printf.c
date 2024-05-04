@@ -11,17 +11,8 @@
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+#include "../libft/libft.h"
 #include <limits.h>
-
-int	ft_strlen(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-		i++;
-	return (i);
-}
 
 int	validrchr(char *str, char c)
 {

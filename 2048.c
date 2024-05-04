@@ -1,8 +1,11 @@
 #include "2048.h"
 #include "libft/libft.h"
+#include "ft_printf/ft_printf.h"
 #include <stdlib.h>
 #include <ncurses.h>
 #include <locale.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define BOX_DRAWING_VERTICAL "│"
 #define BOX_DRAWING_HORIZONTAL "─"
@@ -12,9 +15,37 @@
 #define BOX_DRAWING_BOTTOM_RIGHT "┘"
 
 #define FONT_ASPECT_RATIO 2
-#define DIMENSION 4
+#define DIMENSION 5
 
 #define BRIGHT 1000
+
+void	no_op(void)
+{
+}
+
+unsigned long long	get_one_sec(void)
+{
+	time_t						secs1;
+	time_t						secs2;
+	static unsigned long long	one_sec;
+
+	one_sec = 0;
+	secs1 = time(NULL);
+	while ((secs2 = time(NULL)) == secs1)
+		;
+	while (time(NULL) == secs2)
+		(no_op(), ++one_sec);
+	return (one_sec);
+}
+
+unsigned int	get_inc(char **envp)
+{
+	static unsigned int	inc;
+
+	if (envp != NULL)
+		inc = *(unsigned int *)envp;
+	return (inc++);
+}
 
 t_board	*init_board(void)
 {
@@ -35,6 +66,8 @@ t_board	*init_board(void)
 		while (++j < board->dim)
 			board->cells[i][j] = 0 /* 1 << v++ */;
 	}
+	board->one_sec = get_one_sec();
+	board->new_cell = (t_pos){.x = -1, .y = -1};
 	return (board);
 }
 
@@ -220,11 +253,23 @@ void	print_tty_too_small(void)
 	refresh();
 }
 
+void	ft_sleep(double time, t_board *board)
+{
+	unsigned long long	inc;
+	unsigned long long	wait;
+
+	inc = 0;
+	wait = (unsigned long long)((double)board->one_sec * time * 0.8);
+	while (inc < wait)
+		(no_op(), ++inc);
+}
+
 int	print_board(t_board *board)
 {
 	int	i;
 	int	j;
 	int	cell_dim;
+	int	new_cell_value;
 
 	if (LINES * FONT_ASPECT_RATIO > COLS)
 		cell_dim = COLS / (FONT_ASPECT_RATIO * board->dim);
@@ -235,9 +280,23 @@ int	print_board(t_board *board)
 	{
 		j = -1;
 		while (++j < board->dim)
-			if (print_cell(board, i, j, cell_dim))
+		{
+			if (board->new_cell.x == i && board->new_cell.y == j)
+			{
+				new_cell_value = board->cells[i][j];
+				board->cells[i][j] = 0;
+				print_cell(board, i, j, cell_dim);
+				board->cells[i][j] = new_cell_value;
+			}
+			else if (print_cell(board, i, j, cell_dim))
 				return (print_tty_too_small(), 1);
+		}
 	}
+	refresh();
+	ft_sleep(0.7, board);
+	if (board->new_cell.x != -1 && board->new_cell.y != -1)
+		if (print_cell(board, board->new_cell.x, board->new_cell.y, cell_dim))
+			return (print_tty_too_small(), 1);
 	return (0);
 }
 
@@ -289,7 +348,7 @@ void	ft_setenv(char **envp, const char *name, const char *value)
 		parts = ft_split(*envp, '=');
 		if (!ft_strcmp(parts[0], name))
 		{
-			*envp = ft_strjoin(name, ft_strjoin("=", value));
+			*envp = ft_strjoin((char *)name, ft_strjoin("=", (char *)value));
 			break ;
 		}
 		++envp;
@@ -304,8 +363,8 @@ void	outputPos(char *str, t_pos pos)
 
 int	two_or_four(void)
 {
-	srand(time(NULL));
-	unsigned int two_or_four = rand();
+	srand((unsigned int)time(NULL) + get_inc(NULL));
+	int two_or_four = rand();
 	if(two_or_four % 5 == 0)
 		two_or_four = 4;
 	else
@@ -365,12 +424,14 @@ t_pos	getRandomZeroPos(t_board *board)
 	t_pos	ret;
 	ret.x = 0;
 	ret.y = 0;
-	unsigned int	randomNum = rand();
+
+	srand((unsigned int)time(NULL) + get_inc(NULL));
+	int	randomNum = rand();
 
 	setZeroAmount(board);
 	if(board->zero_amount <= 0)
 		return (ret.x = -1, ret.y = -1, ret);
-	unsigned int pos = randomNum % (board->zero_amount) +1;
+	int pos = randomNum % (board->zero_amount) +1;
 	for (int i = 0; i < (int)pos; i++)
 	{
 		ret = findFirstZero(board, ret);
@@ -383,7 +444,8 @@ t_pos	getRandomZeroPos(t_board *board)
 
 void initPosition(t_board *board, t_pos pos)
 {
-	board->cells[pos.x][pos.y] = two_or_four();
+	// board->cells[pos.x][pos.y] = two_or_four();
+	board->cells[pos.x][pos.y] = 2;
 }
 
 void	init_colors(void)
@@ -439,13 +501,12 @@ void	playing(t_board *board)
 		int	key = KEY_RIGHT;
 		launch_arrows(board, key);
 		// add new position to the board
-		srand(time(NULL));
 		ft_printf("\n");
-		outputGrid(board);
+		// outputGrid(board);
 		t_pos pos1 = getRandomZeroPos(board);
 		outputPos("pos1: ", pos1);
 		initPosition(board, pos1);
-		outputGrid(board);
+		// outputGrid(board);
 		setZeroAmount(board);
 		if(board->zero_amount <= 0 && noMovePossible(board) == true)
 		{
@@ -462,9 +523,10 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	
+
 	/* ncurses setup (compile with -lnursesw)*/
 	ft_setenv(envp, "TERM", "xterm-256color");
+	get_inc(envp);
 	setlocale(LC_ALL, "");
 	initscr();
 	keypad(stdscr, TRUE);
@@ -476,36 +538,47 @@ int	main(int argc, char **argv, char **envp)
 	init_colors();
 	board = init_board();
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
-	srand(time(NULL) / 3);
+	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos2 = getRandomZeroPos(board);
 	while(pos1.x == pos2.x && pos1.y == pos2.y)
 		pos2 = getRandomZeroPos(board);
-	initPosition(board, pos1);
-	initPosition(board, pos2);
+	// initPosition(board, pos1);
+	// initPosition(board, pos2);
+	initPosition(board, (t_pos){.x = 0, .y = 0});
+	initPosition(board, (t_pos){.x = 1, .y = 0});
+	initPosition(board, (t_pos){.x = 2, .y = 0});
+	initPosition(board, (t_pos){.x = 3, .y = 0});
+	initPosition(board, (t_pos){.x = 4, .y = 0});
 	// playing(board);
 
 	print_board(board);
 	while ((key = getch()))
 	{
-		if (key == KEY_RIGHT)
-			right(board);
-		else if (key == KEY_LEFT)
-			left(board);
-		else if (key == KEY_UP)
-			right(board);
-		else if (key == KEY_DOWN)
-			left(board);
-		else if (key == 'q')
+		if (key == 'q' || key == 27)
 			break ;
-		else if (key == 27)
-			break ;
+		else if (launch_arrows(board, key))
+		{
+			pos1 = getRandomZeroPos(board);
+			board->new_cell = pos1;
+			initPosition(board, pos1);
+			setZeroAmount(board);
+			if(board->zero_amount <= 0 && noMovePossible(board) == true)
+				break ;
+		}
+		else
+			board->new_cell = (t_pos){.x = -1, .y = -1};
 		clear();
 		print_board(board);
 		refresh();
 	}
 
+	// clear();
+	// print_board(board);
+	// mvprintw(0, 0, "GAME OVER");
+	// refresh();
+	// key = getch();
 	destroy_board(board);
 	endwin();
 	return (0);
