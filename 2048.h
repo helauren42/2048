@@ -1,6 +1,46 @@
 #ifndef _2048_H
 # define _2048_H
 
+# include <stdbool.h>
+# include <stddef.h>
+
+typedef struct s_board
+{
+	int	dim;
+	int	**cells;
+	int	zero_amount;
+}	t_board;
+
+typedef struct s_pos
+{
+	int	x;
+	int	y;
+}	t_pos;
+
+void			launch_arrows(t_board *board, int key);
+bool			noMovePossible(t_board *board);
+void			freeGrid(int **arr, int size);
+
+unsigned int	ft_abs(int n);
+char			*ft_itoa(int n);
+size_t			ft_utf_8_strlen(const char *s);
+// size_t			ft_strlen(char const *s);
+int				ft_char_in_charset(char c, char const *charset);
+size_t			ft_strlcpy(char *dst, char const *src, size_t size);
+// char			*ft_strtrim(char const *s1, char const *set);
+char			*ft_strrchr(char const *s, int c);
+// int				ft_strcmp(char const *s1, char const *s2);
+int				ft_strncmp(char const *s1, char const *s2, size_t len);
+size_t			ft_count_all(const char str[static 1], const char pattern[static 1]);
+char			*ft_replace_all(const char str[static 1], const char pattern[static 1], const char replacement[static 1]);
+// char			*ft_strdup(char const *s);
+char			**ft_split(char const *s, char c);
+int				ft_max(int a, int b);
+void			ft_bzero(void *ptr, size_t n);
+// void			*ft_calloc(size_t nmemb, size_t size);
+size_t			ft_strlcat(char *dst, char const *src, size_t size);
+// char			*ft_strjoin(char const *s1, char const *s2);
+
 # define MINI_NUMBERS \
 " _  \n"\
 "/ \\ \n"\

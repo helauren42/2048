@@ -1,34 +1,37 @@
-NAME = FABOLOUS
+NAME     := 2048
+CC       := cc
+CFLAGS   := -g3 -Wall -Wextra -Werror -Wconversion
+CPPFLAGS := -MMD
+LDFLAGS  := -g3
+LDLIBS   := -lncursesw
+RM       := /bin/rm -f
 
-SRCS = main.c \
-		launch_arrows.c \
-		freeing.c \
+SRC      := 2048.c launch_arrows.c freeing.c tischmid_libft.c
+OBJ      := $(SRC:.c=.o)
+DEPS     := $(OBJ:.o=.d)
 
-OBJS = $(SRCS:.c=.o)
+.DEFAULT_GOAL = all
 
-CC = cc
+-include $(DEPS)
 
-RM = rm -rf
+all: libft ft_printf $(NAME)
 
-CFLAGS = -Wall -Werror -Wextra -g
+$(NAME): $(OBJ)
+	$(CC) $(LDFLAGS) $(OBJ) ./ft_printf/libftprintf.a ./libft/libft.a $(LDLIBS) -o $@
 
-# LIBFLAGS = -Lmlx_linux -Imlx_linux -lXext -lX11 -lm -lz
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
+libft:
 	$(MAKE) -C libft
+ft_printf:
 	$(MAKE) -C ft_printf
-	$(MAKE) -C minilibx-linux
-	$(CC) $(OBJS) ./ft_printf/libftprintf.a ./libft/libft.a ./minilibx-linux/libmlx.a  -o $@
 
-.c.o:
-	$(CC) -g $(CFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 clean:
 	$(MAKE) -C libft clean
 	$(MAKE) -C ft_printf clean
-	$(RM) $(OBJS)
+	$(RM) $(OBJ)
+	$(RM) $(DEPS)
 
 fclean: clean
 	$(MAKE) -C libft fclean
@@ -37,4 +40,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean all
+.PHONY: re fclean clean all libft ft_printf

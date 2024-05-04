@@ -6,7 +6,7 @@
 /*   By: helauren <helauren@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/12 20:24:24 by helauren          #+#    #+#             */
-/*   Updated: 2024/04/05 23:05:18 by helauren         ###   ########.fr       */
+/*   Updated: 2024/05/04 22:14:57 by helauren         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ char	**ft_split(char const *s, char c);
 
 // char	*ft_strchr(const char *str, int c);
 
-int		ft_strcmp(char *s1, char *s2);
+int	ft_strcmp(char const *s1, char const *s2);
 
 char	*ft_strdup(char *src);
 

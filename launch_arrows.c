@@ -1,4 +1,5 @@
-#include "header.h"
+#include "2048.h"
+#include <ncurses.h>
 
 void	outputArray(int *arr, int size)
 {
@@ -30,118 +31,118 @@ void	trimArrZeros(int *arr, int size)
 		arr[i] = temp[i];
 }
 
-void	doubleItUp(int *colum, t_data *data)
+void	doubleItUp(int *colum, t_board *board)
 {
 	int	i = 0;
 
-	while(i +1 < data->gridSize)
+	while(i +1 < board->dim)
 	{
 		if(colum[i] == colum[i +1])
 		{
 			colum[i] = colum[i] + colum[i];
 			colum[i +1] = 0;
-			trimArrZeros(colum, data->gridSize);
+			trimArrZeros(colum, board->dim);
 		}
 		i++;
 	}
 }
 
-void	launch_left(t_data* data)
+void	launch_left(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * data->gridSize);
+	int	*colum = malloc(sizeof(int) * board->dim);
 	int	in;
 
-	for(int x = 0; x < data->gridSize; x++)
+	for(int x = 0; x < board->dim; x++)
 	{
 		in = 0;
-		zeroedColum(colum, data->gridSize);
-		for(int y = 0; y < data->gridSize; y++)
+		zeroedColum(colum, board->dim);
+		for(int y = 0; y < board->dim; y++)
 		{
-			if(data->theGrid[x][y] != 0)
+			if(board->cells[x][y] != 0)
 			{
-				colum[in] = data->theGrid[x][y];
+				colum[in] = board->cells[x][y];
 				in++;
 			}
 		}
-		doubleItUp(colum, data);
+		doubleItUp(colum, board);
 		// update the grid
-		for(int y = 0; y < data->gridSize; y++)
-			data->theGrid[x][y] = colum[y];
+		for(int y = 0; y < board->dim; y++)
+			board->cells[x][y] = colum[y];
 	}
 	free(colum);
 }
 
-void	launch_right(t_data* data)
+void	launch_right(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * data->gridSize);
+	int	*colum = malloc(sizeof(int) * board->dim);
 	int	in;
 
-	for(int x = 0; x < data->gridSize; x++)
+	for(int x = 0; x < board->dim; x++)
 	{
 		in = 0;
-		zeroedColum(colum, data->gridSize);
-		for(int y = data->gridSize -1; y >= 0; y--)
+		zeroedColum(colum, board->dim);
+		for(int y = board->dim -1; y >= 0; y--)
 		{
-			if(data->theGrid[x][y] != 0)
+			if(board->cells[x][y] != 0)
 			{
-				colum[in] = data->theGrid[x][y];
+				colum[in] = board->cells[x][y];
 				in++;
 			}
 		}
-		doubleItUp(colum, data);
+		doubleItUp(colum, board);
 		in = 0;
-		for(int y = data->gridSize -1; y >= 0; y--, in++)
-			data->theGrid[x][y] = colum[in];
+		for(int y = board->dim -1; y >= 0; y--, in++)
+			board->cells[x][y] = colum[in];
 	}
 	free(colum);
 }
 
-void	launch_up(t_data* data)
+void	launch_up(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * data->gridSize);
+	int	*colum = malloc(sizeof(int) * board->dim);
 	int	in;
 
-	for(int y = 0; y < data->gridSize; y++)
+	for(int y = 0; y < board->dim; y++)
 	{
 		in = 0;
-		zeroedColum(colum, data->gridSize);
-		for(int x = 0; x < data->gridSize; x++)
+		zeroedColum(colum, board->dim);
+		for(int x = 0; x < board->dim; x++)
 		{
-			if(data->theGrid[x][y] != 0)
+			if(board->cells[x][y] != 0)
 			{
-				colum[in] = data->theGrid[x][y];
+				colum[in] = board->cells[x][y];
 				in++;
 			}
 		}
-		doubleItUp(colum, data);
+		doubleItUp(colum, board);
 		// update the grid
-		for(int x = 0; x < data->gridSize; x++)
-			data->theGrid[x][y] = colum[x];
+		for(int x = 0; x < board->dim; x++)
+			board->cells[x][y] = colum[x];
 	}
 	free(colum);
 }
 
-void	launch_down(t_data* data)
+void	launch_down(t_board* board)
 {
-	int	*colum = malloc(sizeof(int) * data->gridSize);
+	int	*colum = malloc(sizeof(int) * board->dim);
 	int	in;
 
-	for(int y = 0; y < data->gridSize; y++)
+	for(int y = 0; y < board->dim; y++)
 	{
 		in = 0;
-		zeroedColum(colum, data->gridSize);
-		for(int x = data->gridSize -1; x >= 0; x--)
+		zeroedColum(colum, board->dim);
+		for(int x = board->dim -1; x >= 0; x--)
 		{
-			if(data->theGrid[x][y] != 0)
+			if(board->cells[x][y] != 0)
 			{
-				colum[in] = data->theGrid[x][y];
+				colum[in] = board->cells[x][y];
 				in++;
 			}
 		}
-		doubleItUp(colum, data);
+		doubleItUp(colum, board);
 		in = 0;
-		for(int x = data->gridSize -1; x >= 0; x--, in++)
-			data->theGrid[x][y] = colum[in];
+		for(int x = board->dim -1; x >= 0; x--, in++)
+			board->cells[x][y] = colum[in];
 	}
 	free(colum);
 }
@@ -168,56 +169,56 @@ bool	gridCompare(int **cpy, int **arr, int size)
 	return (true);
 }
 
-void	launch_arrows(t_data *data, int key)
+void	launch_arrows(t_board *board, int key)
 {
-	int	**cpy = malloc(sizeof(int *) * data->gridSize);
-	for(int i = 0; i < data->gridSize; i++)
+	int	**cpy = malloc(sizeof(int *) * board->dim);
+	for(int i = 0; i < board->dim; i++)
 	{
-		cpy[i] = malloc(sizeof(int) * data->gridSize);
-		zeroedColum(cpy[i], data->gridSize);
+		cpy[i] = malloc(sizeof(int) * board->dim);
+		zeroedColum(cpy[i], board->dim);
 	}
-	copyGrid(cpy, data->theGrid, data->gridSize);
-	while(gridCompare(cpy, data->theGrid, data->gridSize) == true)
+	copyGrid(cpy, board->cells, board->dim);
+	while(gridCompare(cpy, board->cells, board->dim) == true)
 	{
-		copyGrid(cpy, data->theGrid, data->gridSize);
+		copyGrid(cpy, board->cells, board->dim);
 		if(key == KEY_UP)
-			launch_up(data);
+			launch_up(board);
 		else if(key == KEY_DOWN)
-			launch_down(data);
+			launch_down(board);
 		else if(key == KEY_RIGHT)
-			launch_right(data);
+			launch_right(board);
 		else if(key == KEY_LEFT)
-			launch_left(data);
+			launch_left(board);
 	}
-	freeGrid(cpy, data->gridSize);
+	freeGrid(cpy, board->dim);
 }
 
-void	resetGrid(t_data *data, int **temp)
+void	resetGrid(t_board *board, int **temp)
 {
-	copyGrid(data->theGrid, temp, data->gridSize);
-	freeGrid(temp, data->gridSize);
+	copyGrid(board->cells, temp, board->dim);
+	freeGrid(temp, board->dim);
 }
 
-bool	noMovePossible(t_data *data)
+bool	noMovePossible(t_board *board)
 {
-	int	**temp = malloc(sizeof(int *) * data->gridSize);
-	for(int i = 0; i < data->gridSize; i++)
+	int	**temp = malloc(sizeof(int *) * board->dim);
+	for(int i = 0; i < board->dim; i++)
 	{
-		temp[i] = malloc(sizeof(int ) * data->gridSize);
-		zeroedColum(temp[i], data->gridSize);
+		temp[i] = malloc(sizeof(int ) * board->dim);
+		zeroedColum(temp[i], board->dim);
 	}
-	copyGrid(temp, data->theGrid, data->gridSize);
-	launch_up(data);
-	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
-		return (resetGrid(data, temp), false);
-	launch_down(data);
-	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
-		return (resetGrid(data, temp), false);
-	launch_right(data);
-	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
-		return (resetGrid(data, temp), false);
-	launch_left(data);
-	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
-		return (resetGrid(data, temp), false);
+	copyGrid(temp, board->cells, board->dim);
+	launch_up(board);
+	if(gridCompare(temp, board->cells, board->dim) == false)
+		return (resetGrid(board, temp), false);
+	launch_down(board);
+	if(gridCompare(temp, board->cells, board->dim) == false)
+		return (resetGrid(board, temp), false);
+	launch_right(board);
+	if(gridCompare(temp, board->cells, board->dim) == false)
+		return (resetGrid(board, temp), false);
+	launch_left(board);
+	if(gridCompare(temp, board->cells, board->dim) == false)
+		return (resetGrid(board, temp), false);
 	return(true);
 }
