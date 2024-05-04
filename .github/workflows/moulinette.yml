@@ -1,0 +1,41 @@
+name: Test the Game
+
+on:
+  push:
+    branches:
+      - main
+      - tischmid
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: List files
+        run: git ls-files
+
+      - name: Run make once
+        run: make
+
+      - name: Check if it relinks
+        run: make
+
+      - name: Check for NAME (2048) rule
+        run: make 2048
+
+      - name: Check for clean rule
+        run: make clean
+
+      - name: Check for fclean rule
+        run: make fclean
+
+      - name: Check for re rule
+        run: make re
+
+      - name: Check if 2048 binary exists
+        run: test -x ./2048
+
+      - name: Run Test1
+        run: echo 'TODO, run ./tests/test1.sh or smth.'
