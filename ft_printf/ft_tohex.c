@@ -40,8 +40,6 @@ int	tohexlen(unsigned long long nb)
 {
 	int	len;
 
-	if (nb < 0)
-		return (8);
 	len = 1;
 	while (nb > 15)
 	{
