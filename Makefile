@@ -2,6 +2,7 @@ NAME = FABOLOUS
 
 SRCS = main.c \
 		launch_arrows.c \
+		freeing.c \
 
 OBJS = $(SRCS:.c=.o)
 

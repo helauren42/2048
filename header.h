@@ -9,6 +9,7 @@
 # include "../ft_printf/ft_printf.h"
 # include <time.h>
 # include <ncurses.h>
+# include <stdbool.h>
 
 typedef struct s_pos
 {
@@ -24,5 +25,7 @@ typedef struct s_data
 }				t_data;
 
 void	launch_arrows(t_data *data, int key);
+bool	noMovePossible(t_data *data);
+void	freeGrid(int **arr, int size);
 
 #endif

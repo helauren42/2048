@@ -83,6 +83,8 @@ t_pos	getRandomZeroPos(t_data *data)
 	unsigned int	randomNum = rand();
 
 	setZeroAmount(data);
+	if(data->zeroAmount <= 0)
+		return (ret.x = -1, ret.y = -1, ret);
 	unsigned int pos = randomNum % (data->zeroAmount) +1;
 	for (int i = 0; i < (int)pos; i++)
 	{
@@ -106,13 +108,22 @@ void	playing(t_data *data)
 		// TIMO's turn display GRID
 
 		// retrieve key move and update GRID
-		int	key = KEY_UP;
+		int	key = KEY_RIGHT;
 		launch_arrows(data, key);
 		// add new position to the board
 		srand(time(NULL));
+		ft_printf("\n");
+		outputGrid(data);
 		t_pos pos1 = getRandomZeroPos(data);
+		outputPos("pos1: ", pos1);
 		initPosition(data, pos1);
 		outputGrid(data);
+		setZeroAmount(data);
+		if(data->zeroAmount <= 0 && noMovePossible(data) == true)
+		{
+			ft_printf("GAME OVER\n");
+			return ;
+		}
 	}
 }
 

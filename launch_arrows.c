@@ -1,5 +1,11 @@
 #include "header.h"
 
+void	outputArray(int *arr, int size)
+{
+	for(int i = 0; i < size; i++)
+		ft_printf("col[%d] = %d\n", i, arr[i]);
+}
+
 void	zeroedColum(int *colum, int size)
 {
 	for(int i = 0; i < size; i++)
@@ -83,7 +89,6 @@ void	launch_right(t_data* data)
 			}
 		}
 		doubleItUp(colum, data);
-		// update the grid
 		in = 0;
 		for(int y = data->gridSize -1; y >= 0; y--, in++)
 			data->theGrid[x][y] = colum[in];
@@ -134,21 +139,85 @@ void	launch_down(t_data* data)
 			}
 		}
 		doubleItUp(colum, data);
-		// update the grid
-		for(int x = data->gridSize -1; x >= 0; x--)
+		in = 0;
+		for(int x = data->gridSize -1; x >= 0; x--, in++)
 			data->theGrid[x][y] = colum[in];
 	}
 	free(colum);
 }
 
+void	copyGrid(int **cpy, int **arr, int size)
+{
+	for(int x = 0; x < size; x++)
+	{
+		for(int y = 0; y < size; y++)
+			cpy[x][y] = arr[x][y];
+	}
+}
+
+bool	gridCompare(int **cpy, int **arr, int size)
+{
+	for(int x = 0; x < size; x++)
+	{
+		for(int y = 0; y < size; y++)
+		{
+			if(cpy[x][y] != arr[x][y])
+				return (false);
+		}
+	}
+	return (true);
+}
+
 void	launch_arrows(t_data *data, int key)
 {
-	if(key == KEY_UP)
-		launch_up(data);
-	else if(key == KEY_DOWN)
-		launch_down(data);
-	else if(key == KEY_RIGHT)
-		launch_right(data);
-	else if(key == KEY_LEFT)
-		launch_left(data);
+	int	**cpy = malloc(sizeof(int *) * data->gridSize);
+	for(int i = 0; i < data->gridSize; i++)
+	{
+		cpy[i] = malloc(sizeof(int) * data->gridSize);
+		zeroedColum(cpy[i], data->gridSize);
+	}
+	copyGrid(cpy, data->theGrid, data->gridSize);
+	while(gridCompare(cpy, data->theGrid, data->gridSize) == true)
+	{
+		copyGrid(cpy, data->theGrid, data->gridSize);
+		if(key == KEY_UP)
+			launch_up(data);
+		else if(key == KEY_DOWN)
+			launch_down(data);
+		else if(key == KEY_RIGHT)
+			launch_right(data);
+		else if(key == KEY_LEFT)
+			launch_left(data);
+	}
+	freeGrid(cpy, data->gridSize);
+}
+
+void	resetGrid(t_data *data, int **temp)
+{
+	copyGrid(data->theGrid, temp, data->gridSize);
+	freeGrid(temp, data->gridSize);
+}
+
+bool	noMovePossible(t_data *data)
+{
+	int	**temp = malloc(sizeof(int *) * data->gridSize);
+	for(int i = 0; i < data->gridSize; i++)
+	{
+		temp[i] = malloc(sizeof(int ) * data->gridSize);
+		zeroedColum(temp[i], data->gridSize);
+	}
+	copyGrid(temp, data->theGrid, data->gridSize);
+	launch_up(data);
+	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
+		return (resetGrid(data, temp), false);
+	launch_down(data);
+	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
+		return (resetGrid(data, temp), false);
+	launch_right(data);
+	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
+		return (resetGrid(data, temp), false);
+	launch_left(data);
+	if(gridCompare(temp, data->theGrid, data->gridSize) == false)
+		return (resetGrid(data, temp), false);
+	return(true);
 }
