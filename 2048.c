@@ -52,13 +52,11 @@ t_board	*init_board(void)
 	t_board	*board;
 	int		i;
 	int		j;
-	int		v;
 
 	board = malloc(sizeof(*board));
 	board->dim = DIMENSION;
 	board->cells = malloc(sizeof(*board->cells) * (size_t)board->dim);
 	i = -1;
-	v = 1;
 	while (++i < board->dim)
 	{
 		board->cells[i] = malloc(sizeof(*board->cells[i]) * (size_t)board->dim);
