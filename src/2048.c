@@ -466,6 +466,7 @@ void	print_scores(t_board *board)
 						ft_itoa((int)board->high_score))));
 		lines = ft_split(text, '\n');
 		width = max_width(text);
+		free(text);
 	}
 
 	int idx = -1;
