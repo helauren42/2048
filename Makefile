@@ -1,5 +1,5 @@
 NAME     := 2048
-CC       := cc
+CC       := gcc
 CFLAGS   := -g3 -Wall -Wextra -Werror -Wconversion 
 CPPFLAGS := -MMD
 LDFLAGS  := -g3

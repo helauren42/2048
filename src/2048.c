@@ -59,13 +59,11 @@ t_board	*init_board(int dim, bool pre_fill, t_highscores *highscores)
 	t_board	*board;
 	int		i;
 	int		j;
-	int		v;
 
 	board = malloc(sizeof(*board));
 	board->dim = dim;
 	board->cells = malloc(sizeof(*board->cells) * (size_t)board->dim);
 	i = -1;
-	v = 1;
 	while (++i < board->dim)
 	{
 		board->cells[i] = malloc(sizeof(*board->cells[i]) * (size_t)board->dim);
