@@ -687,17 +687,30 @@ void	print_game_over(t_board *board)
 	int x;
 
 	char **lines;
-	if(LINES < 15)
+	if(LINES < 14)
+	{
 		lines = ft_split(SMALL_GAME_OVER, '\n');
-	else
+		x = (COLS / 2) - (ft_strlen(lines[2]) / 6) - 2;
+	}
+	else if (LINES <= 23)
+	{
+		lines = ft_split(MEDIUM_GAME_OVER, '\n');
+		x = (COLS / 2) - (ft_strlen(lines[2]) / 2);
+	}
+	else if (LINES <= 36)
+	{
 		lines = ft_split(BIG_GAME_OVER, '\n');
-
-	x = (COLS / 2) - (ft_strlen(lines[1]) / 6) - 2;
-	y = LINES / 2 - (ft_strlen2d(lines) / 2);
-	mvprintw(3, 0, "LINES = %d, y = %d", LINES, y);
+		x = (COLS / 2) - (ft_strlen(lines[2]) / 6) - 6;
+	}
+	else
+	{
+		lines = ft_split(VERY_BIG_GAME_OVER, '\n');
+		x = (COLS / 2) - (ft_strlen(lines[2]) / 6) - 15;
+	}
+	y = (LINES / 2) - (ft_strlen2d(lines) / 2);
 	for(int i = 0; lines[i]; i++)
 	{
-		mvprintw(2, y, "COLS = %d, ascii_width = %d, x = %d", COLS, ft_strlen(lines[1]), x);
+		mvprintw(y, 0, "COLS = %d, ascii_width = %d, x = %d", COLS, ft_strlen(lines[1]), x);
 		mvprintw(y, x, "%s", lines[i]);
 		y++;
 	}
