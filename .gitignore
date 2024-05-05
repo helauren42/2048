@@ -4,3 +4,4 @@ compile_commands.json
 *.d
 *.a
 2048
+.vscode/settings.json
