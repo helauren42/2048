@@ -300,7 +300,16 @@ int	print_board(t_board *board)
 		}
 	}
 	refresh();
-	ft_sleep(0.7, board);
+	double	div = 1;
+	if(board->list_length > 10)
+		div = 6;
+	else if(board->list_length > 5)
+		div = 3.5;
+	else if(board->list_length > 3)
+		div = 2;
+	else if(board->list_length >= 2)
+		div = 1.5;
+	ft_sleep(0.7 / div, board);
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 		if (print_cell(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
@@ -504,29 +513,6 @@ void	init_colors(void)
 	init_pair(14, COLOR_BLACK, COLOR_CYAN); /* >= 4096 */
 }
 
-int	init_high_score(t_board *board)
-{
-	board->fd_high_score = open("high_score", O_CREAT | O_RDONLY, 0644);
-	if(board->fd_high_score == -1)
-	{
-		ft_printf("Could not open file to keep track of high score\n");
-		return (1);
-	}
-	// biggest number is length 10
-	char *buff = malloc(sizeof(char) * (size_t)16);
-	ssize_t br = read(board->fd_high_score, buff, 15);
-	buff[br] = 0;
-	if(ft_strlen(buff) > 10)
-		return (free(buff), 1);
-	for(int i = 0; buff[i]; i++)
-		if(ft_isdigit(buff[i]) == 0) // is not a digit
-			return (free(buff), 1);
-	board->high_score = (unsigned int)ft_atoi(buff);
-	free(buff);
-	close(board->fd_high_score);
-	return (0);
-}
-
 unsigned int	find_current_score(t_board *board)
 {
 	unsigned int	score = 0;
@@ -551,9 +537,36 @@ void	update_high_score(t_board *board)
 	close(board->fd_high_score);
 }
 
+int	init_high_score(t_board *board)
+{
+	board->fd_high_score = open("high_score", O_CREAT | O_RDONLY, 0644);
+	if(board->fd_high_score == -1)
+	{
+		ft_printf("Could not open file to keep track of high score\n");
+		return (1);
+	}
+	// biggest number is length 10
+	char *buff = malloc(sizeof(char) * (size_t)16);
+	ssize_t br = read(board->fd_high_score, buff, 15);
+	buff[br] = 0;
+	if(ft_strlen(buff) > 10)
+		return (free(buff), 1);
+	for(int i = 0; buff[i]; i++)
+		if(ft_isdigit(buff[i]) == 0) // is not a digit
+			return (free(buff), 1);
+	board->high_score = (unsigned int)ft_atoi(buff);
+	free(buff);
+	close(board->fd_high_score);
+	board->current_score = find_current_score(board);
+	if(board->current_score > board->high_score)
+		update_high_score(board);
+	return (0);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_board	*board;
+	t_li	*list = NULL;
 	int		key;
 
 	(void)argc;
@@ -576,9 +589,6 @@ int	main(int argc, char **argv, char **envp)
 
 	if(init_high_score(board))
 		return(1);
-	board->current_score = find_current_score(board);
-	if(board->current_score > board->high_score)
-		update_high_score(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
@@ -591,6 +601,8 @@ int	main(int argc, char **argv, char **envp)
 	print_board(board);
 	while ((key = getch()))
 	{
+		if(key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT)
+			list = updateList(board, list);
 		if (key == 'q' || key == 27)
 			break ;
 		else if (launch_arrows(board, key))
@@ -617,6 +629,7 @@ int	main(int argc, char **argv, char **envp)
 	// mvprintw(0, 0, "GAME OVER");
 	// refresh();
 	// key = getch();
+	free_list(list);
 	destroy_board(board);
 	endwin();
 	free(tracker);

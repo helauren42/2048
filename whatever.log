@@ -1,85 +1,82 @@
-==67568== Memcheck, a memory error detector
-==67568== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==67568== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==67568== Command: ./2048
-==67568== Parent PID: 57890
-==67568== 
-==67568== 
-==67568== FILE DESCRIPTORS: 9 open (3 std) at exit.
-==67568== Open file descriptor 4: high_score
-==67568==    at 0x49F253B: open (open64.c:41)
-==67568==    by 0x402A46: init_high_score (2048.c:497)
-==67568==    by 0x402D27: main (2048.c:563)
-==67568== 
-==67568== Open file descriptor 103: /usr/share/code/v8_context_snapshot.bin
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 39: /usr/share/code/resources/app/node_modules.asar
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open AF_UNIX socket 38: <unknown>
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 37: /home/helauren/.config/Code/logs/20240505T005116/ptyhost.log
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 3: /home/helauren/Projects/2048/whatever.log
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 2: /dev/pts/0
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 1: /dev/pts/0
-==67568==    <inherited from parent>
-==67568== 
-==67568== Open file descriptor 0: /dev/pts/0
-==67568==    <inherited from parent>
-==67568== 
-==67568== 
-==67568== HEAP SUMMARY:
-==67568==     in use at exit: 276,901 bytes in 522 blocks
-==67568==   total heap usage: 573 allocs, 51 frees, 290,630 bytes allocated
-==67568== 
-==67568== 16 bytes in 1 blocks are definitely lost in loss record 12 of 109
-==67568==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==67568==    by 0x404A46: ft_calloc (tischmid_libft.c:333)
-==67568==    by 0x404C35: ft_strjoin (tischmid_libft.c:370)
-==67568==    by 0x40229A: ft_setenv (2048.c:353)
-==67568==    by 0x402CC6: main (2048.c:550)
-==67568== 
-==67568== 20 bytes in 1 blocks are still reachable in loss record 15 of 109
-==67568==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==67568==    by 0x404A46: ft_calloc (tischmid_libft.c:333)
-==67568==    by 0x404C35: ft_strjoin (tischmid_libft.c:370)
-==67568==    by 0x4022A6: ft_setenv (2048.c:353)
-==67568==    by 0x402CC6: main (2048.c:550)
-==67568== 
-==67568== 50 bytes in 25 blocks are definitely lost in loss record 52 of 109
-==67568==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==67568==    by 0x403CC3: ft_itoa (tischmid_libft.c:25)
-==67568==    by 0x401BF5: print_number (2048.c:222)
-==67568==    by 0x401DB8: print_cell (2048.c:245)
-==67568==    by 0x401FEE: print_board (2048.c:291)
-==67568==    by 0x402E2D: main (2048.c:582)
-==67568== 
-==67568== 993 bytes in 67 blocks are indirectly lost in loss record 94 of 109
-==67568==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==67568==    by 0x404730: ft_split (tischmid_libft.c:293)
-==67568==    by 0x402262: ft_setenv (2048.c:350)
-==67568==    by 0x402CC6: main (2048.c:550)
-==67568== 
-==67568== 1,793 (800 direct, 993 indirect) bytes in 33 blocks are definitely lost in loss record 99 of 109
-==67568==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==67568==    by 0x404673: ft_split (tischmid_libft.c:282)
-==67568==    by 0x402262: ft_setenv (2048.c:350)
-==67568==    by 0x402CC6: main (2048.c:550)
-==67568== 
-==67568== LEAK SUMMARY:
-==67568==    definitely lost: 866 bytes in 59 blocks
-==67568==    indirectly lost: 993 bytes in 67 blocks
-==67568==      possibly lost: 0 bytes in 0 blocks
-==67568==    still reachable: 20 bytes in 1 blocks
-==67568==         suppressed: 275,022 bytes in 395 blocks
-==67568== 
-==67568== For lists of detected and suppressed errors, rerun with: -s
-==67568== ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 12 from 12)
+==79039== Memcheck, a memory error detector
+==79039== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==79039== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==79039== Command: ./2048
+==79039== Parent PID: 57890
+==79039== 
+==79039== Conditional jump or move depends on uninitialised value(s)
+==79039==    at 0x40206A: print_board (2048.c:304)
+==79039==    by 0x402F52: main (2048.c:601)
+==79039== 
+==79039== Conditional jump or move depends on uninitialised value(s)
+==79039==    at 0x40208A: print_board (2048.c:306)
+==79039==    by 0x402F52: main (2048.c:601)
+==79039== 
+==79039== Conditional jump or move depends on uninitialised value(s)
+==79039==    at 0x4020AA: print_board (2048.c:308)
+==79039==    by 0x402F52: main (2048.c:601)
+==79039== 
+==79039== Conditional jump or move depends on uninitialised value(s)
+==79039==    at 0x4020CA: print_board (2048.c:310)
+==79039==    by 0x402F52: main (2048.c:601)
+==79039== 
+==79039== 
+==79039== FILE DESCRIPTORS: 8 open (3 std) at exit.
+==79039== Open file descriptor 103: /usr/share/code/v8_context_snapshot.bin
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 39: /usr/share/code/resources/app/node_modules.asar
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open AF_UNIX socket 38: <unknown>
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 37: /home/helauren/.config/Code/logs/20240505T005116/ptyhost.log
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 3: /home/helauren/Projects/2048/whatever.log
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 2: /dev/pts/0
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 1: /dev/pts/0
+==79039==    <inherited from parent>
+==79039== 
+==79039== Open file descriptor 0: /dev/pts/0
+==79039==    <inherited from parent>
+==79039== 
+==79039== 
+==79039== HEAP SUMMARY:
+==79039==     in use at exit: 211,100 bytes in 513 blocks
+==79039==   total heap usage: 3,581 allocs, 3,068 frees, 255,928 bytes allocated
+==79039== 
+==79039== 20 bytes in 1 blocks are still reachable in loss record 14 of 107
+==79039==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==79039==    by 0x404BF6: ft_calloc (tischmid_libft.c:333)
+==79039==    by 0x404DE5: ft_strjoin (tischmid_libft.c:370)
+==79039==    by 0x402377: ft_setenv (2048.c:370)
+==79039==    by 0x402E1A: main (2048.c:577)
+==79039== 
+==79039== 993 bytes in 67 blocks are definitely lost in loss record 92 of 107
+==79039==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==79039==    by 0x4048E0: ft_split (tischmid_libft.c:293)
+==79039==    by 0x40234D: ft_setenv (2048.c:367)
+==79039==    by 0x402E1A: main (2048.c:577)
+==79039== 
+==79039== 1,040 bytes in 65 blocks are definitely lost in loss record 93 of 107
+==79039==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==79039==    by 0x404F99: addCurrTimeStampAndLength (list.c:43)
+==79039==    by 0x405019: updateList (list.c:55)
+==79039==    by 0x402FAC: main (2048.c:605)
+==79039== 
+==79039== LEAK SUMMARY:
+==79039==    definitely lost: 2,033 bytes in 132 blocks
+==79039==    indirectly lost: 0 bytes in 0 blocks
+==79039==      possibly lost: 0 bytes in 0 blocks
+==79039==    still reachable: 20 bytes in 1 blocks
+==79039==         suppressed: 209,047 bytes in 380 blocks
+==79039== 
+==79039== Use --track-origins=yes to see where uninitialised values come from
+==79039== For lists of detected and suppressed errors, rerun with: -s
+==79039== ERROR SUMMARY: 6 errors from 6 contexts (suppressed: 12 from 12)

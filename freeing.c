@@ -18,3 +18,15 @@ void	destroy_board(t_board *board)
 	free(board->cells);
 	free(board);
 }
+
+void	free_list(t_li *li)
+{
+	t_li	*prev;
+
+	while(li)
+	{
+		prev = li;
+		li = li->next;
+		free(prev);
+	}
+}

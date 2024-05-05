@@ -4,6 +4,12 @@
 # include <stdbool.h>
 # include <stddef.h>
 
+typedef struct s_li
+{
+	unsigned int	time;
+	struct	s_li	*next;
+}	t_li;
+
 typedef struct s_pos
 {
 	int	x;
@@ -17,16 +23,23 @@ typedef struct s_board
 	int					zero_amount;
 	unsigned long long	one_sec;
 	t_pos				new_cell;
+
 	unsigned int		current_score;
 	unsigned int		high_score;
 	int					fd_high_score;
-	char				*env_free;
+
+	int					list_length;
 }	t_board;
 
 bool			launch_arrows(t_board *board, int key);
 bool			noMovePossible(t_board *board);
+t_li			*updateList(t_board *board, t_li *list);
+
+// freeing
 void			freeGrid(int **arr, int size);
 void			destroy_board(t_board *board);
+void			free_list(t_li *li);
+
 
 unsigned int	ft_abs(int n);
 char			*ft_itoa(int n);
