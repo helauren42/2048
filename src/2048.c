@@ -14,17 +14,6 @@ void	no_op(void)
 {
 }
 
-void	ft_sleep(double time, t_board *board)
-{
-	unsigned long long	inc;
-	unsigned long long	wait;
-
-	inc = 0;
-	wait = (unsigned long long)((double)board->one_sec * time * 0.5);
-	while (inc < wait)
-		(no_op(), ++inc);
-}
-
 unsigned long long	get_one_sec(void)
 {
 	time_t						secs1;
@@ -40,6 +29,19 @@ unsigned long long	get_one_sec(void)
 	while (time(NULL) == secs2)
 		(no_op(), ++one_sec);
 	return (one_sec);
+}
+
+void	ft_sleep(double time)
+{
+	unsigned long long	inc;
+	unsigned long long	wait;
+	unsigned long long	one_sec;
+
+	one_sec = get_one_sec();
+	inc = 0;
+	wait = (unsigned long long)((double)one_sec * time);
+	while (inc < wait)
+		(no_op(), ++inc);
 }
 
 unsigned int	get_inc(char **envp)
@@ -88,6 +90,7 @@ t_board	*init_board(int dim)
 	board->prev_cells = malloc(sizeof(int *) * (size_t)board->dim);
 	for (int i = 0; i < board->dim; i++)
 		board->prev_cells[i] = malloc(sizeof(int) * (size_t)board->dim);
+	board->selected = false;
 	return (board);
 }
 
@@ -300,7 +303,7 @@ void	print_borders(t_board *board, int cell_dim)
 				print_border_wrapper(board, i, j, cell_dim, 17);
 		}
 		refresh();
-		ft_sleep(0.1, board);
+		ft_sleep(0.1);
 	}
 
 	i = -1;
@@ -308,7 +311,7 @@ void	print_borders(t_board *board, int cell_dim)
 	{
 		j = -1;
 		while (++j < board->dim)
-			print_border_wrapper(board, i, j, cell_dim, 1);
+			print_border_wrapper(board, i, j, cell_dim, board->selected ? 18 : 1);
 	}
 
 }
@@ -341,7 +344,7 @@ int	print_numbers(t_board *board, int cell_dim)
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 	{
 		refresh();
-		ft_sleep(0.7, board);
+		ft_sleep(0.7);
 		if (print_number_wrapper(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
 	}
@@ -565,6 +568,79 @@ void	init_colors(void)
 	init_pair(15, COLOR_RED, COLOR_BLACK); /* red text */
 	init_pair(16, COLOR_GREEN, COLOR_BLACK); /* green text */
 	init_pair(17, COLOR_RED, COLOR_RED); /* border; move failed */
+	init_pair(18, COLOR_GREEN, COLOR_GREEN); /* border; selected */
+}
+
+void	print_select_board(int lower_border)
+{
+	char		**lines;
+	int			width;
+	int			height;
+	int try = true;
+	int off = 1;
+	if (try && lower_border >= 9)
+	{
+		lines = ft_split(DOSREBEL_SELECT_BOARD, '\n');
+		width = max_width(DOSREBEL_SELECT_BOARD);
+		height = 8;
+		if (width > COLS)
+		{
+			free_double_str(lines);
+			try = true;
+		}
+		else
+			try = false;
+	}
+	if (try && lower_border >= 7)
+	{
+		lines = ft_split(ANSISHADOW_SELECT_BOARD, '\n');
+		width = max_width(ANSISHADOW_SELECT_BOARD);
+		height = 6;
+		if (width > COLS)
+		{
+			free_double_str(lines);
+			try = true;
+		}
+		else
+			try = false;
+	}
+	if (try && lower_border >= 4)
+	{
+		lines = ft_split(SMALL_SELECT_BOARD, '\n');
+		width = max_width(SMALL_SELECT_BOARD);
+		height = 3;
+		if (width > COLS)
+		{
+			free_double_str(lines);
+			try = true;
+		}
+		else
+			try = false;
+	}
+	if (try)
+	{
+		lines = ft_split("SELECT A BOARD\n", '\n');
+		width = max_width("SELECT A BOARD\n");
+		height = 1;
+		if (lower_border < 2)
+			off = 0;
+		if (width > COLS)
+		{
+			free_double_str(lines);
+			try = true;
+		}
+		else
+			try = false;
+	}
+	int idx = -1;
+	while (lines[++idx])
+		mvprintw(
+			lower_border - 1 - height - off + idx,
+			COLS / 2 - width / 2,
+			"%s\n",
+			lines[idx]
+		);
+	free_double_str(lines);
 }
 
 unsigned int	find_current_score(t_board *board)
@@ -619,27 +695,55 @@ int	init_high_score(t_board *board)
 
 int	select_dimension()
 {
-	t_board	*four_board;
-	t_board	*five_board;
-	t_board	*six_board;
-	int		key;
-	int		too_small;
+	t_board		*four_board;
+	t_board		*five_board;
+	t_board		*six_board;
+	int			key;
+	int			too_small;
+	static int	board_number = 4;
+	int			lower_border;
 
 	four_board = init_board(4);
 	five_board = init_board(5);
 	six_board  = init_board(6);
+	switch (board_number)
+	{
+		case 4:
+			four_board->selected = true;
+			five_board->selected = false;
+			six_board->selected = false;
+			break ;
+		case 5:
+			four_board->selected = false;
+			five_board->selected = true;
+			six_board->selected = false;
+			break ;
+		case 6:
+			four_board->selected = false;
+			five_board->selected = false;
+			six_board->selected = true;
+			break ;
+		default:
+			four_board->selected = true;
+			five_board->selected = false;
+			six_board->selected = false;
+			break ;
+	}
 
 	clear();
 	if (COLS > LINES * FONT_ASPECT_RATIO)
 	{
-		too_small =     print_board(four_board,     COLS / 8 - 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+		lower_border = (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8);
+		print_select_board(lower_border);
+		too_small =     print_board(four_board,     COLS / 8 - 1, lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 		if (!too_small)
-			too_small = print_board(five_board, 3 * COLS / 8,     (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+			too_small = print_board(five_board, 3 * COLS / 8,     lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 		if (!too_small)
-			too_small = print_board(six_board,  5 * COLS / 8 + 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+			too_small = print_board(six_board,  5 * COLS / 8 + 1, lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 	}
 	else
 	{
+		print_select_board(LINES / 8 - 1);
 		too_small =     print_board(four_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8,     LINES / 8 - 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
 		if (!too_small)
 			too_small = print_board(five_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 3 * LINES / 8,     FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
@@ -654,14 +758,119 @@ int	select_dimension()
 
 		if (COLS > LINES * FONT_ASPECT_RATIO)
 		{
-			too_small =     print_board(four_board,     COLS / 8 - 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+			switch (key)
+			{
+				case 'l':
+				case KEY_RIGHT:
+					if (four_board->selected)
+					{
+						four_board->selected = false;
+						five_board->selected = true;
+					}
+					else if (five_board->selected)
+					{
+						five_board->selected = false;
+						six_board->selected = true;
+					}
+					else if (six_board->selected)
+					{
+						six_board->selected = false;
+						four_board->selected = true;
+					}
+					break ;
+				case 'h':
+				case KEY_LEFT:
+					if (four_board->selected)
+					{
+						four_board->selected = false;
+						six_board->selected = true;
+					}
+					else if (five_board->selected)
+					{
+						five_board->selected = false;
+						four_board->selected = true;
+					}
+					else if (six_board->selected)
+					{
+						six_board->selected = false;
+						five_board->selected = true;
+					}
+					break ;
+				case ' ':
+				case '\n':
+					if (four_board->selected)
+						board_number = 4;
+					else if (five_board->selected)
+						board_number = 5;
+					else if (six_board->selected)
+						board_number = 6;
+					goto return_board;
+					break ;
+				default:
+					break ;
+			}
+			lower_border = (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8);
+			print_select_board(lower_border);
+			too_small =     print_board(four_board,     COLS / 8 - 1, lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 			if (!too_small)
-				too_small = print_board(five_board, 3 * COLS / 8,     (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+				too_small = print_board(five_board, 3 * COLS / 8,     lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 			if (!too_small)
-				too_small = print_board(six_board,  5 * COLS / 8 + 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+				too_small = print_board(six_board,  5 * COLS / 8 + 1, lower_border, COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
 		}
 		else
 		{
+			switch (key)
+			{
+				case 'j':
+				case KEY_DOWN:
+					if (four_board->selected)
+					{
+						four_board->selected = false;
+						five_board->selected = true;
+					}
+					else if (five_board->selected)
+					{
+						five_board->selected = false;
+						six_board->selected = true;
+					}
+					else if (six_board->selected)
+					{
+						six_board->selected = false;
+						four_board->selected = true;
+					}
+					break ;
+				case 'k':
+				case KEY_UP:
+					if (four_board->selected)
+					{
+						four_board->selected = false;
+						six_board->selected = true;
+					}
+					else if (five_board->selected)
+					{
+						five_board->selected = false;
+						four_board->selected = true;
+					}
+					else if (six_board->selected)
+					{
+						six_board->selected = false;
+						five_board->selected = true;
+					}
+					break ;
+				case ' ':
+				case '\n':
+					if (four_board->selected)
+						board_number = 4;
+					else if (five_board->selected)
+						board_number = 5;
+					else if (six_board->selected)
+						board_number = 6;
+					goto return_board;
+					break ;
+				default:
+					break ;
+			}
+			print_select_board(LINES / 8 - 1);
 			too_small =     print_board(four_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8,     LINES / 8 - 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
 			if (!too_small)
 				too_small = print_board(five_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 3 * LINES / 8,     FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
@@ -671,7 +880,12 @@ int	select_dimension()
 		refresh();
 		refresh();
 	}
-	return (4);
+
+return_board:
+	destroy_board(four_board);
+	destroy_board(five_board);
+	destroy_board(six_board);
+	return (board_number);
 }
 
 void	print_game_over(t_board *board, int key)
@@ -731,70 +945,72 @@ int	main(int argc, char **argv, char **envp)
 	refresh();
 	attroff(COLOR_PAIR(15));
 
-	// dim = select_dimension();
-	dim = 4;
-	board = init_board(dim);
+	// TODO
+	if(init_high_score(board))
+		return(1);
+	get_one_sec();
 
 	attron(COLOR_PAIR(16));
 	clear();
 	mvprintw(0, 0, "Done!");
 	refresh();
-	ft_sleep(0.1, board);
+	ft_sleep(0.1);
 	clear();
 	attroff(COLOR_PAIR(16));
 
-	if(init_high_score(board))
-		return(1);
-	srand((unsigned int)time(NULL) + get_inc(NULL));
-	t_pos pos1 = getRandomZeroPos(board);
-	srand((unsigned int)time(NULL) + get_inc(NULL));
-	t_pos pos2 = getRandomZeroPos(board);
-	while(pos2.y != -1 && pos2.x != -1 && pos1.x == pos2.x && pos1.y == pos2.y)
-		pos2 = getRandomZeroPos(board);
-	initPosition(board, pos1);
-	initPosition(board, pos2);
-
-	print_board(board, 0, 0, COLS, LINES);
-	while ((key = getch()))
+	while (1)
 	{
-		copyGrid(board->prev_cells, board->cells, board->dim);
-		if (key == 'q' || key == 27)
-			break ;
-		else if (key == KEY_RESIZE)
-		{
-			board->move_failed = false;
-			clear();
-		}
-		else if (launch_arrows(board, key))
-		{
-			if(key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT)
-				board->list = updateList(board);
-			pos1 = getRandomZeroPos(board);
-			board->new_cell = pos1;
-			initPosition(board, pos1);
-			setZeroAmount(board);
-			board->current_score = find_current_score(board);
-			if(board->current_score >= WIN_VALUE)
-				board->win_status = WINNING;
-			if(board->current_score > board->high_score)
-				update_high_score(board);
-		}
-		else
-			board->new_cell = (t_pos){.x = -1, .y = -1};
+		dim = select_dimension();
+		board = init_board(dim);
+
+		ioegheio
+		srand((unsigned int)time(NULL) + get_inc(NULL));
+		t_pos pos1 = getRandomZeroPos(board);
+		srand((unsigned int)time(NULL) + get_inc(NULL));
+		t_pos pos2 = getRandomZeroPos(board);
+		while(pos2.y != -1 && pos2.x != -1 && pos1.x == pos2.x && pos1.y == pos2.y)
+			pos2 = getRandomZeroPos(board);
+		initPosition(board, pos1);
+		initPosition(board, pos2);
+
 		print_board(board, 0, 0, COLS, LINES);
-		if(board->zero_amount <= 0 && noMovePossible(board) == true)
-			print_game_over(board, key);
-		refresh();
-		refresh();
+		while ((key = getch()))
+		{
+			// copyGrid(board->prev_cells, board->cells, board->dim);
+			if (key == 'q' || key == 27)
+				break ;
+			else if (key == KEY_RESIZE)
+			{
+				board->move_failed = false;
+				clear();
+			}
+			else if (launch_arrows(board, key))
+			{
+				if(key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT)
+					board->list = updateList(board);
+				pos1 = getRandomZeroPos(board);
+				board->new_cell = pos1;
+				initPosition(board, pos1);
+				setZeroAmount(board);
+				board->current_score = find_current_score(board);
+				if(board->current_score >= WIN_VALUE)
+					board->win_status = WINNING;
+				if(board->current_score > board->high_score)
+					update_high_score(board);
+			}
+			else
+				board->new_cell = (t_pos){.x = -1, .y = -1};
+			print_board(board, 0, 0, COLS, LINES);
+			if(board->zero_amount <= 0 && noMovePossible(board) == true)
+				print_game_over(board, key);
+			refresh();
+			refresh();
+		}
+		// freeGrid(board->prev_cells, board->dim);
+		free_list(board->list);
+		destroy_board(board);
 	}
-	// clear();
-	// print_board(board);
-	// mvprintw(0, 0, "GAME OVER");
-	// refresh();
-	// key = getch();
-	freeGrid(board->prev_cells, board->dim);
-	free_list(board->list);
-	destroy_board(board);
+
 	endwin();
 	free(tracker);
 	return (0);

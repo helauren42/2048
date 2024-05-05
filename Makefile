@@ -1,8 +1,8 @@
 NAME     := 2048
 CC       := cc
-CFLAGS   := -g3 -Wall -Wextra -Werror -Wconversion 
+CFLAGS   := -Wall -Wextra -Werror -Wconversion 
 CPPFLAGS := -MMD
-LDFLAGS  := -g3
+LDFLAGS  :=
 LDLIBS   := -lncursesw
 RM       := /bin/rm -f
 
