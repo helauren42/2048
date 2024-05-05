@@ -20,7 +20,7 @@ void	ft_sleep(double time, t_board *board)
 	unsigned long long	wait;
 
 	inc = 0;
-	wait = (unsigned long long)((double)board->one_sec * time);
+	wait = (unsigned long long)((double)board->one_sec * time * 0.5);
 	while (inc < wait)
 		(no_op(), ++inc);
 }
@@ -39,7 +39,6 @@ unsigned long long	get_one_sec(void)
 		;
 	while (time(NULL) == secs2)
 		(no_op(), ++one_sec);
-	return (0);
 	return (one_sec);
 }
 
@@ -71,8 +70,8 @@ t_board	*init_board(int dim)
 		while (++j < board->dim)
 		{
 			board->cells[i][j] = 0;
-			board->cells[i][j] = 2048;
-			board->cells[i][j] = 2;
+			// board->cells[i][j] = 2048;
+			// board->cells[i][j] = 2;
 			/* board->cells[i][j] = 1 << v++; */
 		}
 	}
@@ -193,7 +192,6 @@ void	fill_inside_cell(int x, int y, int cell_dim)
 	}
 }
 
-/* ret == 0 == no error */
 int	print_number(int y, int x, int cell_dim, int num)
 {
 	int	num_len;
@@ -279,17 +277,6 @@ void	print_tty_too_small(void)
 	refresh();
 }
 
-void	ft_sleep(double time, t_board *board)
-{
-	unsigned long long	inc;
-	unsigned long long	wait;
-
-	inc = 0;
-	wait = (unsigned long long)((double)board->one_sec * time * 0.8);
-	while (inc < wait)
-		(no_op(), ++inc);
-}
-
 void	print_borders(t_board *board, int cell_dim)
 {
 	int	i;
@@ -344,13 +331,13 @@ int	print_numbers(t_board *board, int cell_dim)
 	refresh();
 	double	div = 1;
 	if(board->list_length > 10)
-		div = 6;
+		div = 10;
 	else if(board->list_length > 5)
+		div = 7;
+	else if(board->list_length >= 3)
 		div = 3.5;
-	else if(board->list_length > 3)
-		div = 2;
 	else if(board->list_length >= 2)
-		div = 1.5;
+		div = 1.8;
 	ft_sleep(0.7 / div, board);
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 	{
@@ -359,9 +346,9 @@ int	print_numbers(t_board *board, int cell_dim)
 		if (print_number_wrapper(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
 	}
-	mvprintw(0, 0, "curr score: %d", board->current_score);
-	mvprintw(5, 0, "high score: %d", board->high_score);
-	mvprintw(9, 0, "list size: %d", board->list_length);
+	mvprintw(0, 0, "curr score: %d    ", board->current_score);
+	mvprintw(5, 0, "high score: %d    ", board->high_score);
+	mvprintw(9, 0, "list size: %d    ", board->list_length);
 	// mvprintw(10, 0, "list: ");
 	// print_time_list(board);
 	return (0);
@@ -647,7 +634,6 @@ int	select_dimension()
 	six_board  = init_board(6);
 
 	clear();
-
 	if (COLS > LINES * FONT_ASPECT_RATIO)
 	{
 		too_small =     print_board(four_board,     COLS / 8 - 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
@@ -722,7 +708,8 @@ int	main(int argc, char **argv, char **envp)
 	refresh();
 	attroff(COLOR_PAIR(15));
 
-	dim = select_dimension();
+	// dim = select_dimension();
+	dim = 4;
 	board = init_board(dim);
 
 	attron(COLOR_PAIR(16));
