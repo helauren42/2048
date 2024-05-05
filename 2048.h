@@ -4,6 +4,25 @@
 # include <stdbool.h>
 # include <stddef.h>
 
+# define BOX_DRAWING_VERTICAL "│"
+# define BOX_DRAWING_HORIZONTAL "─"
+# define BOX_DRAWING_TOP_LEFT "┌"
+# define BOX_DRAWING_TOP_RIGHT "┐"
+# define BOX_DRAWING_BOTTOM_LEFT "└"
+# define BOX_DRAWING_BOTTOM_RIGHT "┘"
+
+# define FONT_ASPECT_RATIO 2
+# define DIMENSION 4
+
+# define BRIGHT 1000
+
+# define DEFAULT_WIN_VALUE 2048
+
+enum e_const
+{
+	WIN_VALUE = 2048
+};
+
 typedef struct s_pos
 {
 	int	x;

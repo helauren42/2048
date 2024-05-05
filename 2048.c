@@ -8,18 +8,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define BOX_DRAWING_VERTICAL "│"
-#define BOX_DRAWING_HORIZONTAL "─"
-#define BOX_DRAWING_TOP_LEFT "┌"
-#define BOX_DRAWING_TOP_RIGHT "┐"
-#define BOX_DRAWING_BOTTOM_LEFT "└"
-#define BOX_DRAWING_BOTTOM_RIGHT "┘"
-
-#define FONT_ASPECT_RATIO 2
-#define DIMENSION 4
-
-#define BRIGHT 1000
-
 void	no_op(void)
 {
 }
@@ -30,7 +18,7 @@ void	ft_sleep(double time, t_board *board)
 	unsigned long long	wait;
 
 	inc = 0;
-	wait = (unsigned long long)((double)board->one_sec * time * 0.8);
+	wait = (unsigned long long)((double)board->one_sec * time);
 	while (inc < wait)
 		(no_op(), ++inc);
 }
@@ -553,6 +541,7 @@ int	main(int argc, char **argv, char **envp)
 	cbreak();
 	curs_set(0);
 	start_color();
+	set_escdelay(0);
 
 	init_colors();
 
