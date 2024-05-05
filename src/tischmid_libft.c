@@ -361,16 +361,16 @@ size_t	ft_strlcat(char *dst, char const *src, size_t size)
 	return (dlen + slen);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	size_t	total_len;
-	char	*joined_str;
+// char	*ft_strjoin(char const *s1, char const *s2)
+// {
+// 	size_t	total_len;
+// 	char	*joined_str;
 
-	total_len = ft_strlen(s1) + ft_strlen(s2);
-	joined_str = ft_calloc(total_len + 1, sizeof(*joined_str));
-	if (!joined_str)
-		return (NULL);
-	ft_strlcat(joined_str, s1, total_len + 1);
-	ft_strlcat(joined_str, s2, total_len + 1);
-	return (joined_str);
-}
+// 	total_len = ft_strlen(s1) + ft_strlen(s2);
+// 	joined_str = ft_calloc(total_len + 1, sizeof(*joined_str));
+// 	if (!joined_str)
+// 		return (NULL);
+// 	ft_strlcat(joined_str, s1, total_len + 1);
+// 	ft_strlcat(joined_str, s2, total_len + 1);
+// 	return (joined_str);
+// }

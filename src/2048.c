@@ -99,17 +99,17 @@ t_board	*init_board(int dim, bool pre_fill, t_highscores *highscores)
 	board->list_length = 1;
 	board->first_game_over = true;
 	board->div = 1;
-	board->prev_cells = malloc(sizeof(int *) * (size_t)board->dim);
-	for (int i = 0; i < board->dim; i++)
-		board->prev_cells[i] = malloc(sizeof(int) * (size_t)board->dim);
 	board->selected = false;
 
+	board->current_score = 0;
 	if (board->dim == 4)
 		board->high_score = (unsigned int)highscores->four;
-	if (board->dim == 5)
+	else if (board->dim == 5)
 		board->high_score = (unsigned int)highscores->five;
-	if (board->dim == 6)
+	else if (board->dim == 6)
 		board->high_score = (unsigned int)highscores->six;
+	else
+		board->high_score = 0;
 
 	return (board);
 }
@@ -188,6 +188,8 @@ char	*extract_number(char *numbers, int number)
 	tmp = ft_replace_all(numbers, "NEWLINE\n", "X");
 	small_numbers = ft_split(tmp, 'X');
 	free(tmp);
+	if (number == 0)
+		lb = 0;
 	while (number >>= 1)
 		++lb;
 	ret = ft_strdup(small_numbers[lb]);
@@ -212,6 +214,7 @@ int	print_numbers_height_n(int num, int x, int y, int cell_dim, int height, char
 	while (++line_idx < height)
 		mvprintw(y + cell_dim / 2 - height / 2 + line_idx, x + FONT_ASPECT_RATIO * cell_dim / 2 - num_len / 2, "%s", lines[line_idx]);
 	free_double_str(lines);
+	free(number);
 	return (1);
 
 }
@@ -270,7 +273,7 @@ int	print_number(int y, int x, int cell_dim, int num)
 	ret = 1;
 	if (num == 0)
 		ret = 0;
-	if (print_numbers_height_n(num, x, y, cell_dim, 16, DOH_NUMBERS))
+	else if (print_numbers_height_n(num, x, y, cell_dim, 16, DOH_NUMBERS))
 		ret = 0;
 	else if (print_numbers_height_n(num, x, y, cell_dim, 8, DOSREBEL_NUMBERS))
 		ret = 0;
@@ -386,7 +389,7 @@ char	*repeat_string(char *s, int n)
 	return (ret);
 }
 
-char	*ft_strjoin_2d(char *left, char *right, int spacing)
+char	*ft_strjoin_2d(char *left, char *right, int spacing, bool free2nd)
 {
 	char	**left_lines;
 	char	**right_lines;
@@ -430,6 +433,8 @@ char	*ft_strjoin_2d(char *left, char *right, int spacing)
 	}
 	free_double_str(left_lines);
 	free_double_str(right_lines);
+	if (free2nd)
+		free(right);
 	return (joined);
 }
 
@@ -446,7 +451,7 @@ void	print_scores(t_board *board)
 	text = ft_strjoin_2d(DOSREBEL_SCORE,
 			ft_strjoin_2d(current_score,
 				ft_strjoin_2d(DOSREBEL_BEST,
-					high_score, 2), 10), 2);
+					high_score, 2, false), 10, true), 2, true);
 	lines = ft_split(text, '\n');
 	width = max_width(text);
 	free(text);
@@ -539,14 +544,14 @@ int	my_init_color(short color, int r, int g, int b)
 void	ft_setenv(char **envp, const char *name, const char *value, char **tracker)
 {
 	char	**parts;
-	char	*equalValue = ft_strjoin("=", (char *)value);
+	char	*equalValue = ft_strjoin_nofree("=", (char *)value);
 
 	while (*envp)
 	{
 		parts = ft_split(*envp, '=');
 		if (!ft_strcmp(parts[0], name))
 		{
-			*envp = ft_strjoin((char *)name, equalValue);
+			*envp = ft_strjoin_nofree((char *)name, equalValue);
 			*tracker = *envp;
 			break ;
 		}
@@ -781,6 +786,8 @@ void	update_high_score(t_highscores *highscores, t_board *board)
 {
 	int	ret = 0;
 
+	if (board->current_score > board->high_score)
+		board->high_score = board->current_score;
 	if (board->dim == 4)
 		if((int)board->current_score > highscores->four)
 		{
@@ -841,7 +848,7 @@ int	get_high_score_from_file(int fd)
 
 t_highscores *init_high_scores()
 {
-	t_highscores *highscores = malloc(sizeof(t_highscores *));
+	t_highscores *highscores = malloc(sizeof(t_highscores));
 	int	fd_four;
 	int	fd_five;
 	int	fd_six;
@@ -1210,5 +1217,6 @@ int	main(int argc, char **argv, char **envp)
 	}
 	endwin();
 	free(tracker);
+	free(high_scores);
 	return (0);
 }
