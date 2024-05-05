@@ -52,7 +52,6 @@ typedef struct s_board
 	unsigned int		high_score;
 	int					fd_high_score;
 	int					win_status;
-	bool				game_over;
 
 	int					list_length;
 	t_li				*list;

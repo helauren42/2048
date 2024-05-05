@@ -85,7 +85,6 @@ t_board	*init_board(int dim)
 	board->h = -1;
 	board->win_status = LOSING;
 	board->list = NULL;
-	board->game_over = false;
 	return (board);
 }
 
@@ -788,20 +787,11 @@ int	main(int argc, char **argv, char **envp)
 		else
 			board->new_cell = (t_pos){.x = -1, .y = -1};
 		print_board(board, 0, 0, COLS, LINES);
-		refresh();
-		refresh();
 		if(board->zero_amount <= 0 && noMovePossible(board) == true)
-		{
-			board->game_over = true;
-			break ;
-		}
+			print_game_over(board);
+		refresh();
+		refresh();
 	}
-	if(board->game_over == true)
-	{
-		print_game_over(board);
-	}
-	refresh();
-	while(1);
 	// clear();
 	// print_board(board);
 	// mvprintw(0, 0, "GAME OVER");
