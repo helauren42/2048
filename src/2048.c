@@ -85,6 +85,9 @@ t_board	*init_board(int dim)
 	board->list_length = 1;
 	board->first_game_over = true;
 	board->div = 1;
+	board->prev_cells = malloc(sizeof(int *) * (size_t)board->dim);
+	for (int i = 0; i < board->dim; i++)
+		board->prev_cells[i] = malloc(sizeof(int) * (size_t)board->dim);
 	return (board);
 }
 
@@ -342,10 +345,6 @@ int	print_numbers(t_board *board, int cell_dim)
 		if (print_number_wrapper(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
 	}
-	mvprintw(0, 0, "curr score: %d    ", board->current_score);
-	mvprintw(1, 0, "high score: %d    ", board->high_score);
-	// mvprintw(10, 0, "list: ");
-	// print_time_list(board);
 	return (0);
 }
 
@@ -363,6 +362,8 @@ int	print_board(t_board *board, int x, int y, int w, int h)
 		cell_dim = board->h / board->dim;
 
 	print_borders(board, cell_dim);
+	mvprintw(0, 0, "curr score: %d    ", board->current_score);
+	mvprintw(1, 0, "high score: %d    ", board->high_score);
 	return (print_numbers(board, cell_dim));
 }
 
@@ -756,6 +757,7 @@ int	main(int argc, char **argv, char **envp)
 	print_board(board, 0, 0, COLS, LINES);
 	while ((key = getch()))
 	{
+		copyGrid(board->prev_cells, board->cells, board->dim);
 		if (key == 'q' || key == 27)
 			break ;
 		else if (key == KEY_RESIZE)
@@ -790,6 +792,7 @@ int	main(int argc, char **argv, char **envp)
 	// mvprintw(0, 0, "GAME OVER");
 	// refresh();
 	// key = getch();
+	freeGrid(board->prev_cells, board->dim);
 	free_list(board->list);
 	destroy_board(board);
 	endwin();

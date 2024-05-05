@@ -1,132 +1,46 @@
-==87682== Memcheck, a memory error detector
-==87682== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==87682== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
-==87682== Command: ./2048
-==87682== Parent PID: 57890
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x4022CA: print_numbers (2048.c:334)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x4022EA: print_numbers (2048.c:336)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x40230A: print_numbers (2048.c:338)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x40232A: print_numbers (2048.c:340)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x4954AD6: __vfprintf_internal (vfprintf-internal.c:1516)
-==87682==    by 0x4966499: __vsnprintf_internal (vsnprintf.c:114)
-==87682==    by 0x4887441: ??? (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DC54: vw_printw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DECD: mvprintw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x40242E: print_numbers (2048.c:352)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Use of uninitialised value of size 8
-==87682==    at 0x49382EB: _itoa_word (_itoa.c:177)
-==87682==    by 0x4953ABD: __vfprintf_internal (vfprintf-internal.c:1516)
-==87682==    by 0x4966499: __vsnprintf_internal (vsnprintf.c:114)
-==87682==    by 0x4887441: ??? (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DC54: vw_printw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DECD: mvprintw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x40242E: print_numbers (2048.c:352)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x49382FC: _itoa_word (_itoa.c:177)
-==87682==    by 0x4953ABD: __vfprintf_internal (vfprintf-internal.c:1516)
-==87682==    by 0x4966499: __vsnprintf_internal (vsnprintf.c:114)
-==87682==    by 0x4887441: ??? (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DC54: vw_printw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DECD: mvprintw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x40242E: print_numbers (2048.c:352)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x49545C3: __vfprintf_internal (vfprintf-internal.c:1516)
-==87682==    by 0x4966499: __vsnprintf_internal (vsnprintf.c:114)
-==87682==    by 0x4887441: ??? (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DC54: vw_printw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DECD: mvprintw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x40242E: print_numbers (2048.c:352)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== Conditional jump or move depends on uninitialised value(s)
-==87682==    at 0x4953C05: __vfprintf_internal (vfprintf-internal.c:1516)
-==87682==    by 0x4966499: __vsnprintf_internal (vsnprintf.c:114)
-==87682==    by 0x4887441: ??? (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DC54: vw_printw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x488DECD: mvprintw (in /usr/lib/x86_64-linux-gnu/libncursesw.so.6.3)
-==87682==    by 0x40242E: print_numbers (2048.c:352)
-==87682==    by 0x4024DB: print_board (2048.c:372)
-==87682==    by 0x4039EF: main (2048.c:738)
-==87682== 
-==87682== 
-==87682== FILE DESCRIPTORS: 8 open (3 std) at exit.
-==87682== Open file descriptor 103: /usr/share/code/v8_context_snapshot.bin
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 39: /usr/share/code/resources/app/node_modules.asar
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open AF_UNIX socket 38: <unknown>
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 37: /home/helauren/.config/Code/logs/20240505T005116/ptyhost.log
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 3: /home/helauren/Projects/2048/whatever.log
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 2: /dev/pts/0
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 1: /dev/pts/0
-==87682==    <inherited from parent>
-==87682== 
-==87682== Open file descriptor 0: /dev/pts/0
-==87682==    <inherited from parent>
-==87682== 
-==87682== 
-==87682== HEAP SUMMARY:
-==87682==     in use at exit: 289,302 bytes in 469 blocks
-==87682==   total heap usage: 1,004 allocs, 535 frees, 307,679 bytes allocated
-==87682== 
-==87682== 20 bytes in 1 blocks are still reachable in loss record 14 of 109
-==87682==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==87682==    by 0x405716: ft_calloc (tischmid_libft.c:333)
-==87682==    by 0x405905: ft_strjoin (tischmid_libft.c:370)
-==87682==    by 0x4026B7: ft_setenv (2048.c:424)
-==87682==    by 0x4037A2: main (2048.c:695)
-==87682== 
-==87682== 993 bytes in 67 blocks are definitely lost in loss record 95 of 109
-==87682==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==87682==    by 0x405400: ft_split (tischmid_libft.c:293)
-==87682==    by 0x40268D: ft_setenv (2048.c:421)
-==87682==    by 0x4037A2: main (2048.c:695)
-==87682== 
-==87682== LEAK SUMMARY:
-==87682==    definitely lost: 993 bytes in 67 blocks
-==87682==    indirectly lost: 0 bytes in 0 blocks
-==87682==      possibly lost: 0 bytes in 0 blocks
-==87682==    still reachable: 20 bytes in 1 blocks
-==87682==         suppressed: 288,289 bytes in 401 blocks
-==87682== 
-==87682== Use --track-origins=yes to see where uninitialised values come from
-==87682== For lists of detected and suppressed errors, rerun with: -s
-==87682== ERROR SUMMARY: 10 errors from 10 contexts (suppressed: 13 from 13)
+==69060== Memcheck, a memory error detector
+==69060== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==69060== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==69060== Command: ./2048
+==69060== Parent PID: 67395
+==69060== 
+==69060== 
+==69060== FILE DESCRIPTORS: 8 open (3 std) at exit.
+==69060== Open file descriptor 103: /usr/share/code/v8_context_snapshot.bin
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open AF_UNIX socket 39: <unknown>
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 38: /usr/share/code/resources/app/node_modules.asar
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 37: /home/helauren/.config/Code/logs/20240505T154055/ptyhost.log
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 3: /home/helauren/Projects/2048/whatever.log
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 2: /dev/pts/0
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 1: /dev/pts/0
+==69060==    <inherited from parent>
+==69060== 
+==69060== Open file descriptor 0: /dev/pts/0
+==69060==    <inherited from parent>
+==69060== 
+==69060== 
+==69060== HEAP SUMMARY:
+==69060==     in use at exit: 298,700 bytes in 398 blocks
+==69060==   total heap usage: 1,666 allocs, 1,268 frees, 324,254 bytes allocated
+==69060== 
+==69060== LEAK SUMMARY:
+==69060==    definitely lost: 0 bytes in 0 blocks
+==69060==    indirectly lost: 0 bytes in 0 blocks
+==69060==      possibly lost: 0 bytes in 0 blocks
+==69060==    still reachable: 0 bytes in 0 blocks
+==69060==         suppressed: 298,700 bytes in 398 blocks
+==69060== 
+==69060== For lists of detected and suppressed errors, rerun with: -s
+==69060== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 16 from 16)

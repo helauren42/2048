@@ -44,6 +44,7 @@ typedef struct s_board
 {
 	int					dim;
 	int					**cells;
+	int					**prev_cells;
 	int					zero_amount;
 	unsigned long long	one_sec;
 	t_pos				new_cell;
@@ -68,6 +69,7 @@ typedef struct s_board
 bool			launch_arrows(t_board *board, int key);
 bool			noMovePossible(t_board *board);
 t_li			*updateList(t_board *board);
+void			copyGrid(int **cpy, int **arr, int size);
 
 // freeing
 void			freeGrid(int **arr, int size);
