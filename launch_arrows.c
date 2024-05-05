@@ -181,6 +181,7 @@ bool	launch_arrows(t_board *board, int key)
 		zeroedColum(cpy[i], board->dim);
 	}
 	copyGrid(cpy, board->cells, board->dim);
+	board->move_failed = false;
 	if(key == KEY_UP)
 		launch_up(board);
 	else if(key == KEY_DOWN)
@@ -192,7 +193,10 @@ bool	launch_arrows(t_board *board, int key)
 	else
 		ret = false;
 	if (gridCompare(cpy, board->cells, board->dim) == true)
+	{
 		ret = false;
+		board->move_failed = true;
+	}
 	else
 		ret = true;
 	freeGrid(cpy, board->dim);
