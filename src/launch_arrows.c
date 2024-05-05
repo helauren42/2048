@@ -1,6 +1,6 @@
 #include "2048.h"
 #include <ncurses.h>
-#include "ft_printf/ft_printf.h"
+#include "../ft_printf/ft_printf.h"
 
 void	outputArray(int *arr, int size)
 {
@@ -42,7 +42,7 @@ void	doubleItUp(int *colum, t_board *board)
 		if(colum[i] == colum[i +1])
 		{
 			colum[i] = colum[i] + colum[i];
-			colum[i +1] = 0;
+			colum[i+1] = 0;
 			trimArrZeros(colum, board->dim);
 		}
 		i++;
@@ -182,18 +182,22 @@ bool	launch_arrows(t_board *board, int key)
 		zeroedColum(cpy[i], board->dim);
 	}
 	copyGrid(cpy, board->cells, board->dim);
-	if(key == KEY_UP)
+	board->move_failed = false;
+	if(key == KEY_UP || key == 'k')
 		launch_up(board);
-	else if(key == KEY_DOWN)
+	else if(key == KEY_DOWN || key == 'j')
 		launch_down(board);
-	else if(key == KEY_RIGHT)
+	else if(key == KEY_RIGHT || key == 'l')
 		launch_right(board);
-	else if(key == KEY_LEFT)
+	else if(key == KEY_LEFT || key == 'h')
 		launch_left(board);
 	else
 		ret = false;
 	if (gridCompare(cpy, board->cells, board->dim) == true)
+	{
 		ret = false;
+		board->move_failed = true;
+	}
 	else
 		ret = true;
 	freeGrid(cpy, board->dim);

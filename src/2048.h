@@ -10,6 +10,24 @@ typedef struct s_li
 	struct	s_li	*next;
 }	t_li;
 
+# define BOX_DRAWING_VERTICAL "│"
+# define BOX_DRAWING_HORIZONTAL "─"
+# define BOX_DRAWING_TOP_LEFT "┌"
+# define BOX_DRAWING_TOP_RIGHT "┐"
+# define BOX_DRAWING_BOTTOM_LEFT "└"
+# define BOX_DRAWING_BOTTOM_RIGHT "┘"
+
+# define FONT_ASPECT_RATIO 2
+
+# define BRIGHT 1000
+
+# define DEFAULT_WIN_VALUE 2048
+
+enum e_const
+{
+	WIN_VALUE = 2048
+};
+
 typedef struct s_pos
 {
 	int	x;
@@ -30,6 +48,12 @@ typedef struct s_board
 
 	int					list_length;
 	t_li				*list;
+
+	bool				move_failed;
+	int					x;
+	int					y;
+	int					w;
+	int					h;
 }	t_board;
 
 bool			launch_arrows(t_board *board, int key);
