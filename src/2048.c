@@ -339,12 +339,10 @@ int	print_numbers(t_board *board, int cell_dim)
 				return (print_tty_too_small(), 1);
 		}
 	}
-	refresh();
-	ft_sleep(0.7 / board->div, board);
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 	{
 		refresh();
-		ft_sleep(0.7);
+		ft_sleep(0.7 / board->div);
 		if (print_number_wrapper(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
 	}
@@ -365,8 +363,6 @@ int	print_board(t_board *board, int x, int y, int w, int h)
 		cell_dim = board->h / board->dim;
 
 	print_borders(board, cell_dim);
-	mvprintw(0, 0, "curr score: %d    ", board->current_score);
-	mvprintw(1, 0, "high score: %d    ", board->high_score);
 	return (print_numbers(board, cell_dim));
 }
 
@@ -656,41 +652,109 @@ unsigned int	find_current_score(t_board *board)
 	return (score);
 }
 
-void	update_high_score(t_board *board)
+void	update_high_score(t_highscores *highscores, t_board *board)
 {
-	board->high_score = board->current_score;
-	char *content = ft_itoa((int)board->high_score);
+	int	ret = 0;
 
-	open("high_score", O_WRONLY | O_TRUNC, 0644);
-	write(board->fd_high_score, content, (size_t)ft_strlen(content));
+	if (board->dim == 4)
+		if((int)board->current_score > highscores->four)
+		{
+			ret = 1;
+			highscores->four = (int)board->current_score;
+		}
+	if (board->dim == 5)
+		if((int)board->current_score > highscores->five)
+		{
+			ret = 1;
+			highscores->five = (int)board->current_score;
+		}
+	if (board->dim == 6)
+		if((int)board->current_score > highscores->six)
+		{
+			ret = 1;
+			highscores->six = (int)board->current_score;
+		}
+
+	if(!ret)
+		return ;
+
+	if (board->dim == 4)
+		highscores->four = (int)board->current_score;
+	if (board->dim == 5)
+		highscores->five = (int)board->current_score;
+	if (board->dim == 6)
+		highscores->six = (int)board->current_score;
+	
+	char *content = ft_itoa((int)board->current_score);
+
+	int	fd;
+	if (board->dim == 4)
+		fd = open("high_score_four", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (board->dim == 5)
+		fd = open("high_score_five", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (board->dim == 6)
+		fd = open("high_score_six", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	write(fd, content, (size_t)ft_strlen(content));
 	free(content);
-	close(board->fd_high_score);
+	close(fd);
 }
 
-int	init_high_score(t_board *board)
+int	get_high_score_from_file(int fd)
 {
-	board->fd_high_score = open("high_score", O_CREAT | O_RDONLY, 0644);
-	if(board->fd_high_score == -1)
-	{
-		ft_printf("Could not open file to keep track of high score\n");
-		return (1);
-	}
-	// biggest number is length 10
 	char *buff = malloc(sizeof(char) * (size_t)16);
-	ssize_t br = read(board->fd_high_score, buff, 15);
+	ssize_t br = read(fd, buff, 15);
 	buff[br] = 0;
 	if(ft_strlen(buff) > 10)
 		return (free(buff), 1);
 	for(int i = 0; buff[i]; i++)
 		if(ft_isdigit(buff[i]) == 0) // is not a digit
-			return (free(buff), 1);
-	board->high_score = (unsigned int)ft_atoi(buff);
+			return (free(buff), -1);
+	int a = ft_atoi(buff);
 	free(buff);
-	close(board->fd_high_score);
-	board->current_score = find_current_score(board);
-	if(board->current_score > board->high_score)
-		update_high_score(board);
-	return (0);
+	return(a);
+}
+
+t_highscores *init_high_scores()
+{
+	t_highscores *highscores = malloc(sizeof(t_highscores *));
+	int	fd_four;
+	int	fd_five;
+	int	fd_six;
+
+	fd_four = open("high_score_four", O_CREAT | O_RDONLY, 0644);
+	if(fd_four == -1)
+	{
+		mvprintw(11, 0, "Could not open file to keep track of high score\n");
+		return (NULL);
+	}
+	fd_five = open("high_score_five", O_CREAT | O_RDONLY, 0644);
+	if(fd_five == -1)
+	{
+		mvprintw(11, 0, "Could not open file to keep track of high score\n");
+		close(fd_four);
+		return (NULL);
+	}
+	fd_six = open("high_score_six", O_CREAT | O_RDONLY, 0644);
+	if(fd_six == -1)
+	{
+		mvprintw(11, 0, "Could not open file to keep track of high score\n");
+		close(fd_four);
+		close(fd_five);
+		return (NULL);
+	}
+	highscores->four = get_high_score_from_file(fd_four);
+	highscores->five = get_high_score_from_file(fd_five);
+	highscores->six = get_high_score_from_file(fd_six);
+
+	close(fd_four);
+	close(fd_five);
+	close(fd_six);
+	if(highscores->four == -1 || highscores->five == -1 || highscores->six == -1)
+	{
+		free(highscores);
+		return (NULL);
+	}
+	return(highscores);
 }
 
 int	select_dimension()
@@ -908,7 +972,7 @@ void	print_game_over(t_board *board, int key)
 	{
 		mvprintw(y, x, "%s", lines[i]);
 		if(board->first_game_over == true && key != KEY_RESIZE)
-			ft_sleep(1.5, board);
+			ft_sleep(1.5);
 		refresh();
 		y++;
 	}
@@ -916,11 +980,24 @@ void	print_game_over(t_board *board, int key)
 	board->first_game_over = false;
 }
 
+void	print_scores(t_board *board, t_highscores *high_scores)
+{
+	int	highS;
+
+	if (board->dim == 4)
+		highS = high_scores->four;
+	if (board->dim == 5)
+		highS = high_scores->five;
+	if (board->dim == 6)
+		highS = high_scores->six;
+}
+
 int	main(int argc, char **argv, char **envp)
 {
-	t_board	*board;
-	int		key;
-	int		dim;
+	t_board			*board;
+	t_highscores	*high_scores = NULL;
+	int				key;
+	int				dim;
 
 	(void)argc;
 	(void)argv;
@@ -945,9 +1022,6 @@ int	main(int argc, char **argv, char **envp)
 	refresh();
 	attroff(COLOR_PAIR(15));
 
-	// TODO
-	if(init_high_score(board))
-		return(1);
 	get_one_sec();
 
 	attron(COLOR_PAIR(16));
@@ -958,12 +1032,19 @@ int	main(int argc, char **argv, char **envp)
 	clear();
 	attroff(COLOR_PAIR(16));
 
+	// TODO
+	high_scores = init_high_scores();
+	if(high_scores == NULL)
+	{
+		endwin();
+		return(1);
+	}
+
 	while (1)
 	{
 		dim = select_dimension();
 		board = init_board(dim);
 
-		ioegheio
 		srand((unsigned int)time(NULL) + get_inc(NULL));
 		t_pos pos1 = getRandomZeroPos(board);
 		srand((unsigned int)time(NULL) + get_inc(NULL));
@@ -976,7 +1057,6 @@ int	main(int argc, char **argv, char **envp)
 		print_board(board, 0, 0, COLS, LINES);
 		while ((key = getch()))
 		{
-			// copyGrid(board->prev_cells, board->cells, board->dim);
 			if (key == 'q' || key == 27)
 				break ;
 			else if (key == KEY_RESIZE)
@@ -995,22 +1075,20 @@ int	main(int argc, char **argv, char **envp)
 				board->current_score = find_current_score(board);
 				if(board->current_score >= WIN_VALUE)
 					board->win_status = WINNING;
-				if(board->current_score > board->high_score)
-					update_high_score(board);
+				update_high_score(high_scores, board);
 			}
 			else
 				board->new_cell = (t_pos){.x = -1, .y = -1};
 			print_board(board, 0, 0, COLS, LINES);
+			print_scores(board, high_scores);
 			if(board->zero_amount <= 0 && noMovePossible(board) == true)
 				print_game_over(board, key);
 			refresh();
 			refresh();
 		}
-		// freeGrid(board->prev_cells, board->dim);
 		free_list(board->list);
 		destroy_board(board);
 	}
-
 	endwin();
 	free(tracker);
 	return (0);

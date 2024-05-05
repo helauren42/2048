@@ -34,6 +34,13 @@ enum win_status
 	LOSING,
 };
 
+typedef struct s_highscores
+{
+	int	four;
+	int	five;
+	int	six;
+}		t_highscores;
+
 typedef struct s_pos
 {
 	int	x;
@@ -50,7 +57,6 @@ typedef struct s_board
 	t_pos				new_cell;
 
 	unsigned int		current_score;
-	unsigned int		high_score;
 	int					fd_high_score;
 	int					win_status;
 	bool				first_game_over;
