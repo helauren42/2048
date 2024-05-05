@@ -60,6 +60,7 @@ t_board	*init_board(int dim)
 
 	board = malloc(sizeof(*board));
 	board->dim = dim;
+	board->dim = 2;
 	board->cells = malloc(sizeof(*board->cells) * (size_t)board->dim);
 	i = -1;
 	v = 1;
@@ -70,7 +71,7 @@ t_board	*init_board(int dim)
 		while (++j < board->dim)
 		{
 			board->cells[i][j] = 0;
-			// board->cells[i][j] = 2048;
+			board->cells[i][j] = 2048;
 			// board->cells[i][j] = 2;
 			/* board->cells[i][j] = 1 << v++; */
 		}
@@ -82,6 +83,9 @@ t_board	*init_board(int dim)
 	board->y = -1;
 	board->w = -1;
 	board->h = -1;
+	board->win_status = LOSING;
+	board->list = NULL;
+	board->game_over = false;
 	return (board);
 }
 
@@ -347,8 +351,7 @@ int	print_numbers(t_board *board, int cell_dim)
 			return (print_tty_too_small(), 1);
 	}
 	mvprintw(0, 0, "curr score: %d    ", board->current_score);
-	mvprintw(5, 0, "high score: %d    ", board->high_score);
-	mvprintw(9, 0, "list size: %d    ", board->list_length);
+	mvprintw(1, 0, "high score: %d    ", board->high_score);
 	// mvprintw(10, 0, "list: ");
 	// print_time_list(board);
 	return (0);
@@ -672,11 +675,33 @@ int	select_dimension()
 			if (!too_small)
 				too_small = print_board(six_board,  (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 5 * LINES / 8 + 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
 		}
-
 		refresh();
 		refresh();
 	}
 	return (4);
+}
+
+void	print_game_over(t_board *board)
+{
+	(void) board;
+	int	y;
+	int x;
+
+	char **lines;
+	if(LINES < 15)
+		lines = ft_split(SMALL_GAME_OVER, '\n');
+	else
+		lines = ft_split(BIG_GAME_OVER, '\n');
+
+	x = (COLS / 2) - (ft_strlen(lines[1]) / 6) - 2;
+	y = LINES / 2 - (ft_strlen2d(lines) / 2);
+	mvprintw(3, 0, "LINES = %d, y = %d", LINES, y);
+	for(int i = 0; lines[i]; i++)
+	{
+		mvprintw(2, y, "COLS = %d, ascii_width = %d, x = %d", COLS, ft_strlen(lines[1]), x);
+		mvprintw(y, x, "%s", lines[i]);
+		y++;
+	}
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -720,10 +745,8 @@ int	main(int argc, char **argv, char **envp)
 	clear();
 	attroff(COLOR_PAIR(16));
 
-
 	if(init_high_score(board))
 		return(1);
-	board->list = NULL;
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
@@ -756,9 +779,9 @@ int	main(int argc, char **argv, char **envp)
 			board->new_cell = pos1;
 			initPosition(board, pos1);
 			setZeroAmount(board);
-			if(board->zero_amount <= 0 && noMovePossible(board) == true)
-				break ;
 			board->current_score = find_current_score(board);
+			if(board->current_score >= WIN_VALUE)
+				board->win_status = WINNING;
 			if(board->current_score > board->high_score)
 				update_high_score(board);
 		}
@@ -767,8 +790,18 @@ int	main(int argc, char **argv, char **envp)
 		print_board(board, 0, 0, COLS, LINES);
 		refresh();
 		refresh();
+		if(board->zero_amount <= 0 && noMovePossible(board) == true)
+		{
+			board->game_over = true;
+			break ;
+		}
 	}
-
+	if(board->game_over == true)
+	{
+		print_game_over(board);
+	}
+	refresh();
+	while(1);
 	// clear();
 	// print_board(board);
 	// mvprintw(0, 0, "GAME OVER");

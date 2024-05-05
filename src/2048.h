@@ -28,6 +28,12 @@ enum e_const
 	WIN_VALUE = 2048
 };
 
+enum win_status
+{
+	WINNING,
+	LOSING,
+};
+
 typedef struct s_pos
 {
 	int	x;
@@ -45,6 +51,8 @@ typedef struct s_board
 	unsigned int		current_score;
 	unsigned int		high_score;
 	int					fd_high_score;
+	int					win_status;
+	bool				game_over;
 
 	int					list_length;
 	t_li				*list;
@@ -85,6 +93,20 @@ void			ft_bzero(void *ptr, size_t n);
 // void			*ft_calloc(size_t nmemb, size_t size);
 size_t			ft_strlcat(char *dst, char const *src, size_t size);
 // char			*ft_strjoin(char const *s1, char const *s2);
+
+
+# define SMALL_GAME_OVER \
+"╔═╗╔═╗╔╦╗╔═╗  ╔═╗╦  ╦╔═╗╦═╗\n"\
+"║ ╦╠═╣║║║║╣   ║ ║╚╗╔╝║╣ ╠╦╝\n"\
+"╚═╝╩ ╩╩ ╩╚═╝  ╚═╝ ╚╝ ╚═╝╩╚═\n"\
+
+# define BIG_GAME_OVER \
+" ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ \n"\
+"██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗\n"\
+"██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝\n"\
+"██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗\n"\
+"╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║\n"\
+" ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝\n"\
 
 # define MINI_NUMBERS \
 " _  \n"\
