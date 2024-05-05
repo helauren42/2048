@@ -54,7 +54,7 @@ unsigned int	get_inc(char **envp)
 	return (inc++);
 }
 
-t_board	*init_board(int dim, bool pre_fill)
+t_board	*init_board(int dim, bool pre_fill, t_highscores *highscores)
 {
 	t_board	*board;
 	int		i;
@@ -103,6 +103,14 @@ t_board	*init_board(int dim, bool pre_fill)
 	for (int i = 0; i < board->dim; i++)
 		board->prev_cells[i] = malloc(sizeof(int) * (size_t)board->dim);
 	board->selected = false;
+
+	if (board->dim == 4)
+		board->high_score = (unsigned int)highscores->four;
+	if (board->dim == 5)
+		board->high_score = (unsigned int)highscores->five;
+	if (board->dim == 6)
+		board->high_score = (unsigned int)highscores->six;
+
 	return (board);
 }
 
@@ -884,9 +892,9 @@ int	select_dimension()
 	static int	board_number = 4;
 	int			lower_border;
 
-	four_board = init_board(4, true);
-	five_board = init_board(5, true);
-	six_board  = init_board(6, true);
+	four_board = init_board(4, true, &(t_highscores){.four = 4096, .five = 8196, .six = 16});
+	five_board = init_board(5, true, &(t_highscores){.four = 4096, .five = 8196, .six = 16});
+	six_board  = init_board(6, true, &(t_highscores){.four = 4096, .five = 8196, .six = 16});
 	switch (board_number)
 	{
 		case 4:
@@ -1102,18 +1110,6 @@ void	print_game_over(t_board *board, int key)
 	board->first_game_over = false;
 }
 
-void	print_scores(t_board *board, t_highscores *high_scores)
-{
-	int	highS;
-
-	if (board->dim == 4)
-		highS = high_scores->four;
-	if (board->dim == 5)
-		highS = high_scores->five;
-	if (board->dim == 6)
-		highS = high_scores->six;
-}
-
 int	main(int argc, char **argv, char **envp)
 {
 	t_board			*board;
@@ -1166,9 +1162,7 @@ int	main(int argc, char **argv, char **envp)
 		dim = select_dimension();
 		if (dim == -1)
 			break ;
-		board = init_board(dim, false);
-		if (init_high_score(board))
-			break ;
+		board = init_board(dim, false, high_scores);
 
 		srand((unsigned int)time(NULL) + get_inc(NULL));
 		t_pos pos1 = getRandomZeroPos(board);
@@ -1201,7 +1195,7 @@ int	main(int argc, char **argv, char **envp)
 				if (board->current_score >= WIN_VALUE)
 					board->win_status = WINNING;
 				if (board->current_score > board->high_score)
-					update_high_score(board);
+					update_high_score(high_scores, board);
 			}
 			else
 				board->new_cell = (t_pos){.x = -1, .y = -1};
