@@ -271,6 +271,19 @@ void	ft_sleep(double time, t_board *board)
 		(no_op(), ++inc);
 }
 
+void	print_time_list(t_board *board)
+{
+	t_li	*curr;
+
+	curr = board->list;
+	while (curr)
+	{
+		printw("%u -> ", curr->time);
+		curr = curr->next;
+	}
+	refresh();
+}
+
 int	print_board(t_board *board)
 {
 	int	i;
@@ -315,6 +328,9 @@ int	print_board(t_board *board)
 			return (print_tty_too_small(), 1);
 	mvprintw(0, 0, "curr score: %d", board->current_score);
 	mvprintw(5, 0, "high score: %d", board->high_score);
+	mvprintw(9, 0, "list size: %d", board->list_length);
+	// mvprintw(10, 0, "list: ");
+	// print_time_list(board);
 	return (0);
 }
 
@@ -566,7 +582,6 @@ int	init_high_score(t_board *board)
 int	main(int argc, char **argv, char **envp)
 {
 	t_board	*board;
-	t_li	*list = NULL;
 	int		key;
 
 	(void)argc;
@@ -589,6 +604,7 @@ int	main(int argc, char **argv, char **envp)
 
 	if(init_high_score(board))
 		return(1);
+	board->list = NULL;
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
@@ -601,12 +617,12 @@ int	main(int argc, char **argv, char **envp)
 	print_board(board);
 	while ((key = getch()))
 	{
-		if(key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT)
-			list = updateList(board, list);
 		if (key == 'q' || key == 27)
 			break ;
 		else if (launch_arrows(board, key))
 		{
+			if(key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT)
+				board->list = updateList(board);
 			pos1 = getRandomZeroPos(board);
 			board->new_cell = pos1;
 			initPosition(board, pos1);
@@ -629,7 +645,7 @@ int	main(int argc, char **argv, char **envp)
 	// mvprintw(0, 0, "GAME OVER");
 	// refresh();
 	// key = getch();
-	free_list(list);
+	free_list(board->list);
 	destroy_board(board);
 	endwin();
 	free(tracker);

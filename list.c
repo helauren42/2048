@@ -29,9 +29,9 @@ t_li *cleanUpOldOnes(t_li *list)
 	return(first);
 }
 
-void	addCurrTimeStampAndLength(t_board *board, t_li *list)
+void	addCurrTimeStampAndLength(t_board *board)
 {
-	t_li	*curr = list;
+	t_li	*curr = board->list;
 	board->list_length = 1;
 
 	while(curr && curr->next)
@@ -44,14 +44,14 @@ void	addCurrTimeStampAndLength(t_board *board, t_li *list)
 	new->next = NULL;
 	new->time = (unsigned int) time(NULL);
 	if(curr == NULL)
-		curr = new;
+		board->list = new;
 	else
 		curr->next = new;
 }
 
-t_li	*updateList(t_board *board, t_li *list)
+t_li	*updateList(t_board *board)
 {
-	list = cleanUpOldOnes(list);
-	addCurrTimeStampAndLength(board, list);
-	return (list);
+	board->list = cleanUpOldOnes(board->list);
+	addCurrTimeStampAndLength(board);
+	return (board->list);
 }

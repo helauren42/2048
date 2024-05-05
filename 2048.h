@@ -29,11 +29,12 @@ typedef struct s_board
 	int					fd_high_score;
 
 	int					list_length;
+	t_li				*list;
 }	t_board;
 
 bool			launch_arrows(t_board *board, int key);
 bool			noMovePossible(t_board *board);
-t_li			*updateList(t_board *board, t_li *list);
+t_li			*updateList(t_board *board);
 
 // freeing
 void			freeGrid(int **arr, int size);
