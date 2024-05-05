@@ -6,7 +6,8 @@ LDFLAGS  := -g3
 LDLIBS   := -lncursesw
 RM       := /bin/rm -f
 
-SRC      := 2048.c launch_arrows.c freeing.c tischmid_libft.c
+_SRC     := 2048.c launch_arrows.c freeing.c tischmid_libft.c
+SRC      := $(addprefix ./src/,$(_SRC))
 OBJ      := $(SRC:.c=.o)
 DEPS     := $(OBJ:.o=.d)
 

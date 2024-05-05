@@ -1,6 +1,6 @@
 #include "2048.h"
-#include "libft/libft.h"
-#include "ft_printf/ft_printf.h"
+#include "../libft/libft.h"
+#include "../ft_printf/ft_printf.h"
 #include <curses.h>
 #include <stdlib.h>
 #include <ncurses.h>

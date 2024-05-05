@@ -1,6 +1,6 @@
 #include "2048.h"
 #include <ncurses.h>
-#include "ft_printf/ft_printf.h"
+#include "../ft_printf/ft_printf.h"
 
 void	outputArray(int *arr, int size)
 {
