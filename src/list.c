@@ -53,5 +53,13 @@ t_li	*updateList(t_board *board)
 {
 	board->list = cleanUpOldOnes(board->list);
 	addCurrTimeStampAndLength(board);
+	if(board->list_length > 10)
+		board->div = 10;
+	else if(board->list_length > 5)
+		board->div = 7;
+	else if(board->list_length >= 3)
+		board->div = 3.5;
+	else if(board->list_length >= 2)
+		board->div = 1.8;
 	return (board->list);
 }

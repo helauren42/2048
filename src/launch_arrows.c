@@ -231,5 +231,8 @@ bool	noMovePossible(t_board *board)
 	launch_left(board);
 	if(gridCompare(temp, board->cells, board->dim) == false)
 		return (resetGrid(board, temp), false);
+	for(int i = 0; i < board->dim; i++)
+		free(temp[i]);
+	free(temp);
 	return(true);
 }

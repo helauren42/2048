@@ -52,9 +52,11 @@ typedef struct s_board
 	unsigned int		high_score;
 	int					fd_high_score;
 	int					win_status;
+	bool				first_game_over;
 
 	int					list_length;
 	t_li				*list;
+	double				div;
 
 	bool				move_failed;
 	int					x;
@@ -86,7 +88,7 @@ int				ft_strncmp(char const *s1, char const *s2, size_t len);
 size_t			ft_count_all(const char str[static 1], const char pattern[static 1]);
 char			*ft_replace_all(const char str[static 1], const char pattern[static 1], const char replacement[static 1]);
 // char			*ft_strdup(char const *s);
-char			**ft_split(char const *s, char c);
+// char			**ft_split(char const *s, char c);
 int				ft_max(int a, int b);
 void			ft_bzero(void *ptr, size_t n);
 // void			*ft_calloc(size_t nmemb, size_t size);

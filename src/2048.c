@@ -60,7 +60,6 @@ t_board	*init_board(int dim)
 
 	board = malloc(sizeof(*board));
 	board->dim = dim;
-	board->dim = 2;
 	board->cells = malloc(sizeof(*board->cells) * (size_t)board->dim);
 	i = -1;
 	v = 1;
@@ -71,9 +70,7 @@ t_board	*init_board(int dim)
 		while (++j < board->dim)
 		{
 			board->cells[i][j] = 0;
-			board->cells[i][j] = 2048;
-			// board->cells[i][j] = 2;
-			/* board->cells[i][j] = 1 << v++; */
+			// board->cells[i][j] = 2048;
 		}
 	}
 	board->one_sec = get_one_sec();
@@ -86,6 +83,8 @@ t_board	*init_board(int dim)
 	board->win_status = LOSING;
 	board->list = NULL;
 	board->list_length = 1;
+	board->first_game_over = true;
+	board->div = 1;
 	return (board);
 }
 
@@ -135,11 +134,13 @@ void	print_border(int y, int x, int cell_dim, int color)
 int	max_width(char *lines_str)
 {
 	char	**lines;
+	char	**orig_lines;
 	int		max_width = 0;
 
-	lines = ft_split(lines_str, '\n');
+	orig_lines = lines = ft_split(lines_str, '\n');
 	while (*lines)
 		max_width = ft_max(max_width, (int)ft_utf_8_strlen(*lines++));
+	free_double_str(orig_lines);
 	return (max_width);
 }
 
@@ -333,16 +334,7 @@ int	print_numbers(t_board *board, int cell_dim)
 		}
 	}
 	refresh();
-	double	div = 1;
-	if(board->list_length > 10)
-		div = 10;
-	else if(board->list_length > 5)
-		div = 7;
-	else if(board->list_length >= 3)
-		div = 3.5;
-	else if(board->list_length >= 2)
-		div = 1.8;
-	ft_sleep(0.7 / div, board);
+	ft_sleep(0.7 / board->div, board);
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 	{
 		refresh();
@@ -413,7 +405,7 @@ int	my_init_color(short color, int r, int g, int b)
 	));
 }
 
-void	ft_setenv(char **envp, const char *name, const char *value, char *tracker)
+void	ft_setenv(char **envp, const char *name, const char *value, char **tracker)
 {
 	char	**parts;
 	char	*equalValue = ft_strjoin("=", (char *)value);
@@ -424,13 +416,13 @@ void	ft_setenv(char **envp, const char *name, const char *value, char *tracker)
 		if (!ft_strcmp(parts[0], name))
 		{
 			*envp = ft_strjoin((char *)name, equalValue);
-			tracker = *envp;
+			*tracker = *envp;
 			break ;
 		}
-		free(parts);
+		free_double_str(parts);
 		++envp;
 	}
-	free(parts);
+	free_double_str(parts);
 	free(equalValue);
 }
 
@@ -681,11 +673,10 @@ int	select_dimension()
 	return (4);
 }
 
-void	print_game_over(t_board *board)
+void	print_game_over(t_board *board, int key)
 {
-	(void) board;
-	int	y;
-	int x;
+	int			y;
+	int 		x;
 
 	char **lines;
 	if(LINES < 14)
@@ -700,12 +691,14 @@ void	print_game_over(t_board *board)
 	y = (LINES / 2) - (ft_strlen2d(lines) / 2);
 	for(int i = 0; lines[i]; i++)
 	{
-		mvprintw(y, 0, "COLS = %d, ascii_width = %d, x = %d", COLS, ft_strlen(lines[1]), x);
 		mvprintw(y, x, "%s", lines[i]);
-		ft_sleep(1.5, board);
+		if(board->first_game_over == true && key != KEY_RESIZE)
+			ft_sleep(1.5, board);
 		refresh();
 		y++;
 	}
+	free_double_str(lines);
+	board->first_game_over = false;
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -719,7 +712,7 @@ int	main(int argc, char **argv, char **envp)
 
 	/* ncurses setup (compile with -lnursesw) */
 	char *tracker = NULL;
-	ft_setenv(envp, "TERM", "xterm-256color", tracker);
+	ft_setenv(envp, "TERM", "xterm-256color", &tracker);
 	get_inc(envp);
 	setlocale(LC_ALL, "");
 	initscr();
@@ -763,11 +756,6 @@ int	main(int argc, char **argv, char **envp)
 	print_board(board, 0, 0, COLS, LINES);
 	while ((key = getch()))
 	{
-		/* add_to_linked_list(key, time(NULL)); */
-		/* if (how_many_keys_have_been_pressed_in_the_last_2_seconds() > 10) */
-			/* reduce_global_delay_to_small_value() */
-		/* else */
-			/* vamp_up() */
 		if (key == 'q' || key == 27)
 			break ;
 		else if (key == KEY_RESIZE)
@@ -793,7 +781,7 @@ int	main(int argc, char **argv, char **envp)
 			board->new_cell = (t_pos){.x = -1, .y = -1};
 		print_board(board, 0, 0, COLS, LINES);
 		if(board->zero_amount <= 0 && noMovePossible(board) == true)
-			print_game_over(board);
+			print_game_over(board, key);
 		refresh();
 		refresh();
 	}
