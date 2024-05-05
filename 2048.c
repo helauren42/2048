@@ -6,6 +6,8 @@
 #include <locale.h>
 #include <time.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define BOX_DRAWING_VERTICAL "│"
 #define BOX_DRAWING_HORIZONTAL "─"
@@ -154,10 +156,15 @@ int	print_numbers_height_n(int num, int x, int y, int cell_dim, int height, char
 		++lb;
 	num_len = max_width(small_numbers[lb]);
 	if (num_len > FONT_ASPECT_RATIO * cell_dim - 2)
+	{
+		free_double_str(small_numbers);
 		return (0);
+	}
 	lines = ft_split(small_numbers[lb], '\n');
 	while (++line_idx < height)
 		mvprintw(y + cell_dim / 2 - height / 2 + line_idx, x + FONT_ASPECT_RATIO * cell_dim / 2 - num_len / 2, "%s", lines[line_idx]);
+	free_double_str(small_numbers);
+	free_double_str(lines);
 	return (1);
 
 }
@@ -217,7 +224,9 @@ int	print_number(t_board *board, int i, int j, int cell_dim)
 		color = 14;
 	attron(COLOR_PAIR(color));
 	fill_inside_cell(x, y, cell_dim);
-	num_len = (int)ft_strlen(ft_itoa(num));
+	char *freethis = ft_itoa(num);
+	num_len = (int)ft_strlen(freethis);
+	free(freethis);
 	ret = 1;
 	if (print_numbers_height_n(num, x, y, cell_dim, 16, DOH_NUMBERS))
 		ret = 0;
@@ -295,6 +304,8 @@ int	print_board(t_board *board)
 	if (board->new_cell.x != -1 && board->new_cell.y != -1)
 		if (print_cell(board, board->new_cell.x, board->new_cell.y, cell_dim))
 			return (print_tty_too_small(), 1);
+	mvprintw(0, 0, "curr score: %d", board->current_score);
+	mvprintw(5, 0, "high score: %d", board->high_score);
 	return (0);
 }
 
@@ -337,20 +348,25 @@ int	my_init_color(short color, int r, int g, int b)
 	));
 }
 
-void	ft_setenv(char **envp, const char *name, const char *value)
+void	ft_setenv(char **envp, const char *name, const char *value, char *tracker)
 {
 	char	**parts;
+	char	*equalValue = ft_strjoin("=", (char *)value);
 
 	while (*envp)
 	{
 		parts = ft_split(*envp, '=');
 		if (!ft_strcmp(parts[0], name))
 		{
-			*envp = ft_strjoin((char *)name, ft_strjoin("=", (char *)value));
+			*envp = ft_strjoin((char *)name, equalValue);
+			tracker = *envp;
 			break ;
 		}
+		free(parts);
 		++envp;
 	}
+	free(parts);
+	free(equalValue);
 }
 
 void	outputPos(char *str, t_pos pos)
@@ -442,8 +458,7 @@ t_pos	getRandomZeroPos(t_board *board)
 
 void initPosition(t_board *board, t_pos pos)
 {
-	// board->cells[pos.x][pos.y] = two_or_four();
-	board->cells[pos.x][pos.y] = 2;
+	board->cells[pos.x][pos.y] = two_or_four();
 }
 
 void	init_colors(void)
@@ -489,29 +504,51 @@ void	init_colors(void)
 	init_pair(14, COLOR_BLACK, COLOR_CYAN); /* >= 4096 */
 }
 
-void	playing(t_board *board)
+int	init_high_score(t_board *board)
 {
-	while(1)
+	board->fd_high_score = open("high_score", O_CREAT | O_RDONLY, 0644);
+	if(board->fd_high_score == -1)
 	{
-		// TIMO's turn display GRID
-
-		// retrieve key move and update GRID
-		int	key = KEY_RIGHT;
-		launch_arrows(board, key);
-		// add new position to the board
-		ft_printf("\n");
-		// outputGrid(board);
-		t_pos pos1 = getRandomZeroPos(board);
-		outputPos("pos1: ", pos1);
-		initPosition(board, pos1);
-		// outputGrid(board);
-		setZeroAmount(board);
-		if(board->zero_amount <= 0 && noMovePossible(board) == true)
-		{
-			ft_printf("GAME OVER\n");
-			return ;
-		}
+		ft_printf("Could not open file to keep track of high score\n");
+		return (1);
 	}
+	// biggest number is length 10
+	char *buff = malloc(sizeof(char) * (size_t)16);
+	ssize_t br = read(board->fd_high_score, buff, 15);
+	buff[br] = 0;
+	if(ft_strlen(buff) > 10)
+		return (free(buff), 1);
+	for(int i = 0; buff[i]; i++)
+		if(ft_isdigit(buff[i]) == 0) // is not a digit
+			return (free(buff), 1);
+	board->high_score = (unsigned int)ft_atoi(buff);
+	free(buff);
+	close(board->fd_high_score);
+	return (0);
+}
+
+unsigned int	find_current_score(t_board *board)
+{
+	unsigned int	score = 0;
+
+	for(int i = 0; i < board->dim; i++)
+	{
+		for(int j = 0; j < board->dim; j++)
+			if(score < (unsigned int)board->cells[i][j])
+				score = (unsigned int)board->cells[i][j];
+	}
+	return (score);
+}
+
+void	update_high_score(t_board *board)
+{
+	board->high_score = board->current_score;
+	char *content = ft_itoa((int)board->high_score);
+
+	open("high_score", O_WRONLY | O_TRUNC, 0644);
+	write(board->fd_high_score, content, (size_t)ft_strlen(content));
+	free(content);
+	close(board->fd_high_score);
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -522,8 +559,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 
-	/* ncurses setup (compile with -lnursesw)*/
-	ft_setenv(envp, "TERM", "xterm-256color");
+	/* ncurses setup (compile with -lnursesw) */
+	char *tracker = NULL;
+	ft_setenv(envp, "TERM", "xterm-256color", tracker);
 	get_inc(envp);
 	setlocale(LC_ALL, "");
 	initscr();
@@ -536,20 +574,19 @@ int	main(int argc, char **argv, char **envp)
 	init_colors();
 	board = init_board();
 
+	if(init_high_score(board))
+		return(1);
+	board->current_score = find_current_score(board);
+	if(board->current_score > board->high_score)
+		update_high_score(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos2 = getRandomZeroPos(board);
 	while(pos1.x == pos2.x && pos1.y == pos2.y)
 		pos2 = getRandomZeroPos(board);
-	// initPosition(board, pos1);
-	// initPosition(board, pos2);
-	initPosition(board, (t_pos){.x = 0, .y = 0});
-	initPosition(board, (t_pos){.x = 1, .y = 0});
-	initPosition(board, (t_pos){.x = 2, .y = 0});
-	initPosition(board, (t_pos){.x = 3, .y = 0});
-	initPosition(board, (t_pos){.x = 4, .y = 0});
-	// playing(board);
+	initPosition(board, pos1);
+	initPosition(board, pos2);
 
 	print_board(board);
 	while ((key = getch()))
@@ -564,6 +601,9 @@ int	main(int argc, char **argv, char **envp)
 			setZeroAmount(board);
 			if(board->zero_amount <= 0 && noMovePossible(board) == true)
 				break ;
+			board->current_score = find_current_score(board);
+			if(board->current_score > board->high_score)
+				update_high_score(board);
 		}
 		else
 			board->new_cell = (t_pos){.x = -1, .y = -1};
@@ -579,5 +619,6 @@ int	main(int argc, char **argv, char **envp)
 	// key = getch();
 	destroy_board(board);
 	endwin();
+	free(tracker);
 	return (0);
 }

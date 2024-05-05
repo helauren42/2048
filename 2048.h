@@ -17,6 +17,10 @@ typedef struct s_board
 	int					zero_amount;
 	unsigned long long	one_sec;
 	t_pos				new_cell;
+	unsigned int		current_score;
+	unsigned int		high_score;
+	int					fd_high_score;
+	char				*env_free;
 }	t_board;
 
 bool			launch_arrows(t_board *board, int key);

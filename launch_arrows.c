@@ -30,6 +30,7 @@ void	trimArrZeros(int *arr, int size)
 	}
 	for(int i = 0; i < size; i++)
 		arr[i] = temp[i];
+	free(temp);
 }
 
 void	doubleItUp(int *colum, t_board *board)
