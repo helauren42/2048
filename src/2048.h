@@ -12,7 +12,6 @@
 # define BOX_DRAWING_BOTTOM_RIGHT "┘"
 
 # define FONT_ASPECT_RATIO 2
-# define DIMENSION 4
 
 # define BRIGHT 1000
 
@@ -37,6 +36,10 @@ typedef struct s_board
 	unsigned long long	one_sec;
 	t_pos				new_cell;
 	bool				move_failed;
+	int					x;
+	int					y;
+	int					w;
+	int					h;
 }	t_board;
 
 bool			launch_arrows(t_board *board, int key);

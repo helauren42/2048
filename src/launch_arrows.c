@@ -41,7 +41,7 @@ void	doubleItUp(int *colum, t_board *board)
 		if(colum[i] == colum[i +1])
 		{
 			colum[i] = colum[i] + colum[i];
-			colum[i +1] = 0;
+			colum[i+1] = 0;
 			trimArrZeros(colum, board->dim);
 		}
 		i++;
@@ -182,13 +182,13 @@ bool	launch_arrows(t_board *board, int key)
 	}
 	copyGrid(cpy, board->cells, board->dim);
 	board->move_failed = false;
-	if(key == KEY_UP)
+	if(key == KEY_UP || key == 'k')
 		launch_up(board);
-	else if(key == KEY_DOWN)
+	else if(key == KEY_DOWN || key == 'j')
 		launch_down(board);
-	else if(key == KEY_RIGHT)
+	else if(key == KEY_RIGHT || key == 'l')
 		launch_right(board);
-	else if(key == KEY_LEFT)
+	else if(key == KEY_LEFT || key == 'h')
 		launch_left(board);
 	else
 		ret = false;

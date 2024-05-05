@@ -29,12 +29,15 @@ unsigned long long	get_one_sec(void)
 	time_t						secs2;
 	static unsigned long long	one_sec;
 
+	if (one_sec != 0)
+		return (one_sec);
 	one_sec = 0;
 	secs1 = time(NULL);
 	while ((secs2 = time(NULL)) == secs1)
 		;
 	while (time(NULL) == secs2)
 		(no_op(), ++one_sec);
+	return (0);
 	return (one_sec);
 }
 
@@ -47,26 +50,37 @@ unsigned int	get_inc(char **envp)
 	return (inc++);
 }
 
-t_board	*init_board(void)
+t_board	*init_board(int dim)
 {
 	t_board	*board;
 	int		i;
 	int		j;
+	int		v;
 
 	board = malloc(sizeof(*board));
-	board->dim = DIMENSION;
+	board->dim = dim;
 	board->cells = malloc(sizeof(*board->cells) * (size_t)board->dim);
 	i = -1;
+	v = 1;
 	while (++i < board->dim)
 	{
 		board->cells[i] = malloc(sizeof(*board->cells[i]) * (size_t)board->dim);
 		j = -1;
 		while (++j < board->dim)
-			board->cells[i][j] = 0 /* 1 << v++ */;
+		{
+			board->cells[i][j] = 0;
+			board->cells[i][j] = 2048;
+			board->cells[i][j] = 2;
+			/* board->cells[i][j] = 1 << v++; */
+		}
 	}
 	board->one_sec = get_one_sec();
 	board->new_cell = (t_pos){.x = -1, .y = -1};
 	board->move_failed = false;
+	board->x = -1;
+	board->y = -1;
+	board->w = -1;
+	board->h = -1;
 	return (board);
 }
 
@@ -230,22 +244,22 @@ int	print_number(int y, int x, int cell_dim, int num)
 int	print_number_wrapper(t_board *board, int i, int j, int cell_dim)
 {
 	int	ret;
-	int	x;
 	int	y;
+	int	x;
 
-	y = i * cell_dim;
-	x = j * FONT_ASPECT_RATIO * cell_dim + COLS / FONT_ASPECT_RATIO - board->dim * cell_dim;
+	y = board->y + i * cell_dim + board->h / 2 - board->dim * cell_dim / 2;
+	x = board->x + j * FONT_ASPECT_RATIO * cell_dim + board->w / 2 - board->dim * cell_dim * FONT_ASPECT_RATIO / 2;
 	ret = print_number(y, x, cell_dim, board->cells[i][j]);
 	return (ret);
 }
 
 void	print_border_wrapper(t_board *board, int i, int j, int cell_dim, int color)
 {
-	int	x;
 	int	y;
+	int	x;
 
-	y = i * cell_dim;
-	x = j * FONT_ASPECT_RATIO * cell_dim + COLS / FONT_ASPECT_RATIO - board->dim * cell_dim;
+	y = board->y + i * cell_dim + board->h / 2 - board->dim * cell_dim / 2;
+	x = board->x + j * FONT_ASPECT_RATIO * cell_dim + board->w / 2 - board->dim * cell_dim * FONT_ASPECT_RATIO / 2;
 	print_border(y, x, cell_dim, color);
 }
 
@@ -317,14 +331,18 @@ int	print_numbers(t_board *board, int cell_dim)
 	return (0);
 }
 
-int	print_board(t_board *board)
+int	print_board(t_board *board, int x, int y, int w, int h)
 {
 	int	cell_dim;
 
-	if (LINES * FONT_ASPECT_RATIO > COLS)
-		cell_dim = COLS / (FONT_ASPECT_RATIO * board->dim);
+	board->x = x;
+	board->y = y;
+	board->w = w;
+	board->h = h;
+	if (board->h * FONT_ASPECT_RATIO > board->w)
+		cell_dim = board->w / (FONT_ASPECT_RATIO * board->dim);
 	else
-		cell_dim = LINES / board->dim;
+		cell_dim = board->h / board->dim;
 
 	print_borders(board, cell_dim);
 	return (print_numbers(board, cell_dim));
@@ -395,10 +413,10 @@ int	two_or_four(void)
 {
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	int two_or_four = rand();
-	if(two_or_four % 5 == 0)
-		two_or_four = 4;
-	else
+	if(two_or_four % 5 < 3)
 		two_or_four = 2;
+	else
+		two_or_four = 4;
 	return (two_or_four);
 }
 
@@ -474,7 +492,8 @@ t_pos	getRandomZeroPos(t_board *board)
 
 void initPosition(t_board *board, t_pos pos)
 {
-	board->cells[pos.x][pos.y] = two_or_four();
+	if (pos.x != -1 && pos.y != -1)
+		board->cells[pos.x][pos.y] = two_or_four();
 }
 
 void	init_colors(void)
@@ -518,15 +537,76 @@ void	init_colors(void)
 	init_pair(12, 30, 31); /* 1024 */
 	init_pair(13, 32, 33); /* 2048 */
 	init_pair(14, COLOR_BLACK, COLOR_CYAN); /* >= 4096 */
+
 	init_pair(15, COLOR_RED, COLOR_BLACK); /* red text */
 	init_pair(16, COLOR_GREEN, COLOR_BLACK); /* green text */
-	init_pair(17, COLOR_RED, COLOR_RED); /* move failed */
+	init_pair(17, COLOR_RED, COLOR_RED); /* border; move failed */
+}
+
+int	select_dimension()
+{
+	t_board	*four_board;
+	t_board	*five_board;
+	t_board	*six_board;
+	int		key;
+	int		too_small;
+
+	four_board = init_board(4);
+	five_board = init_board(5);
+	six_board  = init_board(6);
+
+	clear();
+
+	if (COLS > LINES * FONT_ASPECT_RATIO)
+	{
+		too_small =     print_board(four_board,     COLS / 8 - 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+		if (!too_small)
+			too_small = print_board(five_board, 3 * COLS / 8,     (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+		if (!too_small)
+			too_small = print_board(six_board,  5 * COLS / 8 + 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+	}
+	else
+	{
+		too_small =     print_board(four_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8,     LINES / 8 - 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+		if (!too_small)
+			too_small = print_board(five_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 3 * LINES / 8,     FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+		if (!too_small)
+			too_small = print_board(six_board,  (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 5 * LINES / 8 + 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+	}
+
+	refresh();
+	while ((key = getch()))
+	{
+		clear();
+
+		if (COLS > LINES * FONT_ASPECT_RATIO)
+		{
+			too_small =     print_board(four_board,     COLS / 8 - 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+			if (!too_small)
+				too_small = print_board(five_board, 3 * COLS / 8,     (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+			if (!too_small)
+				too_small = print_board(six_board,  5 * COLS / 8 + 1, (FONT_ASPECT_RATIO * 4 * LINES - COLS) / (FONT_ASPECT_RATIO * 8), COLS / 4, COLS / (FONT_ASPECT_RATIO * 4));
+		}
+		else
+		{
+			too_small =     print_board(four_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8,     LINES / 8 - 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+			if (!too_small)
+				too_small = print_board(five_board, (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 3 * LINES / 8,     FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+			if (!too_small)
+				too_small = print_board(six_board,  (4 * COLS - FONT_ASPECT_RATIO * LINES) / 8, 5 * LINES / 8 + 1, FONT_ASPECT_RATIO * LINES / 4, LINES / 4);
+		}
+
+		refresh();
+		refresh();
+	}
+	return (4);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	t_board	*board;
 	int		key;
+	int		dim;
 
 	(void)argc;
 	(void)argv;
@@ -550,7 +630,8 @@ int	main(int argc, char **argv, char **envp)
 	refresh();
 	attroff(COLOR_PAIR(15));
 
-	board = init_board();
+	dim = select_dimension();
+	board = init_board(dim);
 
 	attron(COLOR_PAIR(16));
 	clear();
@@ -560,16 +641,17 @@ int	main(int argc, char **argv, char **envp)
 	clear();
 	attroff(COLOR_PAIR(16));
 
+
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos1 = getRandomZeroPos(board);
 	srand((unsigned int)time(NULL) + get_inc(NULL));
 	t_pos pos2 = getRandomZeroPos(board);
-	while(pos1.x == pos2.x && pos1.y == pos2.y)
+	while(pos2.y != -1 && pos2.x != -1 && pos1.x == pos2.x && pos1.y == pos2.y)
 		pos2 = getRandomZeroPos(board);
 	initPosition(board, pos1);
 	initPosition(board, pos2);
 
-	print_board(board);
+	print_board(board, 0, 0, COLS, LINES);
 	while ((key = getch()))
 	{
 		/* add_to_linked_list(key, time(NULL)); */
@@ -595,7 +677,8 @@ int	main(int argc, char **argv, char **envp)
 		}
 		else
 			board->new_cell = (t_pos){.x = -1, .y = -1};
-		print_board(board);
+		print_board(board, 0, 0, COLS, LINES);
+		refresh();
 		refresh();
 	}
 
